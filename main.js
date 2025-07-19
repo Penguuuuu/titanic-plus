@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic Completion
-// @version      1.0
+// @version      1.1
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @grant        none
@@ -9,29 +9,32 @@
 // ==/UserScript==
 
 (async function () {
-    const generalDiv = document.getElementById('general');
-    if (generalDiv) {
-        generalDiv.style.height = `943px`;
-    }
-
     const target = document.querySelector('.profile-stats-element-rscore');
-    if (!target) return;
+    const general = document.getElementById('general');
 
-    const h4 = document.createElement('h4');
-    h4.className = 'profile-stats-element';
-    h4.title = 'For modes other than standard, all maps for the selected mode and converts are summed';
-    h4.innerHTML = `<b>Completion</b>: Loading...`;
+    if (target && general) {
+        general.style.height = '943px';
 
-    const br = document.createElement('br');
-    target.parentNode.insertBefore(h4, target);
-    target.parentNode.insertBefore(br, target);
+        const completionHeader = document.createElement('h4');
+        completionHeader.className = 'profile-stats-element';
+        completionHeader.title = 'For modes other than standard, all maps for the selected mode and converts are summed';
+        completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
+        target.parentNode.insertBefore(completionHeader, target);
 
-    const ranksCount = await getRanksData();
-    const mapsCount = await getBeatmapData();
-    h4.innerHTML = `<b>Completion</b>: ${ranksCount.toLocaleString()} / ${mapsCount.toLocaleString()} (${(ranksCount / mapsCount * 100).toFixed(3)}%)`;
+        const br = document.createElement('br');
+        target.parentNode.insertBefore(br, target);
+
+        const [ranksCount, mapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
+        if (ranksCount === null || mapsCount === null) {
+            completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
+        }
+        else {
+            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.toLocaleString()} / ${mapsCount.toLocaleString()} (${(ranksCount / mapsCount * 100).toFixed(3)}%)`;
+        }
+    }
 })();
 
-async function getBeatmapData() {
+async function getBeatmapsData() {
     try {
         const response = await fetch(`https://api.titanic.sh/stats`);
         const data = await response.json();
@@ -46,8 +49,8 @@ async function getBeatmapData() {
             return standardData.count_approved + standardData.count_qualified + standardData.count_ranked + standardData.count_loved;
         }
     }
-    catch (error) {
-        console.error(error);
+    catch {
+        return null;
     }
 }
 
@@ -61,7 +64,7 @@ async function getRanksData() {
         const modeData = data.stats.find(stat => stat.mode === modeIndex);
         return ( modeData.xh_count + modeData.x_count + modeData.sh_count + modeData.s_count + modeData.a_count + modeData.b_count + modeData.c_count + modeData.d_count );
     }
-    catch (error) {
-        console.error(error);
+    catch {
+        return null;
     }
 }
