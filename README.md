@@ -12,5 +12,5 @@ Completion should now show on your profile
 <img width="281" height="63" alt="image" src="https://github.com/user-attachments/assets/a4bed58e-4a66-4fe3-9bbd-2875c405d117" />
 
 # Notes
-- The script auto updates whenever tampermonkey does a check
+- The script auto updates whenever tampermonkey does a check (usually once a day)
 - for modes other than standard, completion is the sum of all maps for the selected mode and standard
