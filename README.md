@@ -1,7 +1,7 @@
 # How to use
 
 Install Tampermonkey from here:   
-  [https://www.tampermonkey.net/](https://www.tampermonkey.net/)
+[Firefox](https://www.tampermonkey.net/index.php?browser=firefox) / [Chrome](https://www.tampermonkey.net/index.php?browser=chrome)
 
 Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to install the script you can skip creating a script manually):  
    [https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js)
