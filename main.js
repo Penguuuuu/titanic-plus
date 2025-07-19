@@ -4,6 +4,8 @@
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @grant        none
+// @updateURL    https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
+// @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // ==/UserScript==
 
 (async function () {
