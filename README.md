@@ -13,4 +13,4 @@ Completion should now show on your profile
 
 # Notes
 - The script auto updates whenever tampermonkey does a check (usually once a day)
-- for modes other than standard, completion is the sum of all maps for the selected mode and standard
+- For modes other than standard, completion is the sum of all maps for the selected mode and standard
