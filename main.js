@@ -20,9 +20,7 @@
         completionHeader.title = 'For modes other than standard, all maps for the selected mode and converts are summed';
         completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
         target.parentNode.insertBefore(completionHeader, target);
-
-        const br = document.createElement('br');
-        target.parentNode.insertBefore(br, target);
+        target.parentNode.insertBefore(document.createElement('br'), target);
 
         const [ranksCount, mapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
         if (ranksCount === null || mapsCount === null) {
