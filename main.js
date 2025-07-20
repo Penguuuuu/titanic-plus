@@ -9,7 +9,7 @@
 // ==/UserScript==
 
 (async function () {
-    const target = document.querySelector('.profile-stats-element-rscore');
+    const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     const general = document.getElementById('general');
 
     if (target && general) {
@@ -19,8 +19,8 @@
         completionHeader.className = 'profile-stats-element';
         completionHeader.title = 'For modes other than standard, all maps for the selected mode and converts are summed';
         completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
-        target.parentNode.insertBefore(completionHeader, target);
-        target.parentNode.insertBefore(document.createElement('br'), target);
+        target.insertAdjacentElement('afterend', completionHeader);
+        completionHeader.insertAdjacentElement('afterend', document.createElement('br'));
 
         const [ranksCount, mapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
         if (ranksCount === null || mapsCount === null) {
