@@ -19,8 +19,8 @@
         completionHeader.className = 'profile-stats-element';
         completionHeader.title = 'For modes other than standard, all maps for the selected mode and converts are summed';
         completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
-        target.insertAdjacentElement('afterend', completionHeader);
-        completionHeader.insertAdjacentElement('afterend', document.createElement('br'));
+        target.after(completionHeader);
+        completionHeader.after(document.createElement('br'));
 
         const [ranksCount, mapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
         if (ranksCount === null || mapsCount === null) {
