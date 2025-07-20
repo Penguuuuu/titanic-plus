@@ -25,7 +25,7 @@ const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?
         completionHeader.after(document.createElement('br'));
 
         const [ranksCount, beatmapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
-        if (!ranksCount || !beatmapsCount) {
+        if (ranksCount === null || beatmapsCount === null) {
             completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
         }
         else {
