@@ -8,7 +8,7 @@ Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to inst
 
 Create a new tampermonkey script, paste, then save the script
 
-Completion should now show on your profile   
+Completion should now show on your profile:   
 <img width="281" height="63" alt="image" src="https://github.com/user-attachments/assets/a4bed58e-4a66-4fe3-9bbd-2875c405d117" />
 
 # Notes
