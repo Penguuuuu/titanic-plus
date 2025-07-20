@@ -13,7 +13,7 @@
     const general = document.getElementById('general');
 
     if (target && general) {
-        general.style.height = '943px';
+        general.style.height = `${parseInt(general.style.height) + 35}px`;
 
         const completionHeader = document.createElement('h4');
         completionHeader.className = 'profile-stats-element';
