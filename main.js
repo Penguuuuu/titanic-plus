@@ -19,7 +19,7 @@ const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?
 
         const completionHeader = document.createElement('h4');
         completionHeader.className = 'profile-stats-element';
-        completionHeader.title = 'All approved, qualified, ranked, and loved maps. Converts are included for non-standard modes.';
+        completionHeader.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
         completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
         target.after(completionHeader);
         completionHeader.after(document.createElement('br'));
