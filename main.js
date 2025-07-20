@@ -8,6 +8,8 @@
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // ==/UserScript==
 
+const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3)) || 0;
+
 (async function () {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     const general = document.getElementById('general');
@@ -22,12 +24,12 @@
         target.after(completionHeader);
         completionHeader.after(document.createElement('br'));
 
-        const [ranksCount, mapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
-        if (ranksCount === null || mapsCount === null) {
+        const [ranksCount, beatmapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
+        if (!ranksCount || !beatmapsCount) {
             completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
         }
         else {
-            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.toLocaleString()} / ${mapsCount.toLocaleString()} (${(ranksCount / mapsCount * 100).toFixed(3)}%)`;
+            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount / beatmapsCount * 100).toFixed(3)}%)`;
         }
     }
 })();
@@ -37,7 +39,6 @@ async function getBeatmapsData() {
         const response = await fetch(`https://api.titanic.sh/stats`);
         const data = await response.json();
 
-        const modeIndex = parseInt(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3) || '0', 10);
         const modeData = data.beatmap_modes[modeIndex];
         const standardData = data.beatmap_modes[0];
         if (modeIndex !== 0){
@@ -54,12 +55,11 @@ async function getBeatmapsData() {
 
 async function getRanksData() {
     try {
-        const userId = parseInt(window.location.pathname.match(/\/u\/(\d+)/)?.[1] || '', 10);
+        const userId = Number(window.location.pathname.match(/\/u\/(\d+)/)?.[1]);
         const response = await fetch(`https://api.titanic.sh/users/${userId}`);
         const data = await response.json();
 
-        const modeIndex = parseInt(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3) || '0', 10);
-        const modeData = data.stats.find(stat => stat.mode === modeIndex);
+        const modeData = data.stats.find(({mode}) => mode === modeIndex);
         return ( modeData.xh_count + modeData.x_count + modeData.sh_count + modeData.s_count + modeData.a_count + modeData.b_count + modeData.c_count + modeData.d_count );
     }
     catch {
