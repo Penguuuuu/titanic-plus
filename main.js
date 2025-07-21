@@ -8,7 +8,7 @@
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // ==/UserScript==
 
-const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3)) || 0;
+const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3));
 
 (async function () {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
@@ -42,10 +42,10 @@ async function getBeatmapsData() {
         const modeData = data.beatmap_modes[modeIndex];
         const standardData = data.beatmap_modes[0];
         if (modeIndex !== 0){
-            return modeData.count_approved + modeData.count_qualified + modeData.count_ranked + modeData.count_loved + standardData.count_approved + standardData.count_qualified + standardData.count_ranked + standardData.count_loved;
+            return modeData.count_qualified + modeData.count_approved + modeData.count_ranked + modeData.count_loved + standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
         }
         else {
-            return standardData.count_approved + standardData.count_qualified + standardData.count_ranked + standardData.count_loved;
+            return standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
         }
     }
     catch {
