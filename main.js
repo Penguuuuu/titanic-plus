@@ -1,8 +1,9 @@
 // ==UserScript==
 // @name         Titanic Completion
-// @version      1.1
+// @version      1.2
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
+// @include      https://osu.titanic.sh/rankings/*/clears*
 // @grant        none
 // @updateURL    https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
@@ -10,11 +11,11 @@
 
 const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3));
 
-(async function () {
+(async () => {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     const general = document.getElementById('general');
 
-    if (target && general) {
+    if (target) {
         general.style.height = `${parseInt(general.style.height) + 35}px`;
 
         const completionHeader = document.createElement('h4');
@@ -66,3 +67,22 @@ async function getRanksData() {
         return null;
     }
 }
+
+(async () => {
+    const target = document.querySelectorAll('table.player-listing tbody tr');
+
+    if (target) {
+        target.forEach(row => {
+            const cell = row.cells[4];
+            const text = cell.textContent.trim();
+            const match = text.match(/([\d,]+)\s*\/\s*([\d,]+)/);
+
+            const [, c, t] = match;
+            const count = +c.split(',').join('');
+            const total = +t.split(',').join('');
+
+            const percent = ((count / total) * 100).toFixed(3);
+            cell.innerHTML = `<b>${text} (${percent}%)</b>`;
+        });
+    }
+})();
