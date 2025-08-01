@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic Completion
-// @version      1.2
+// @version      1.3
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @include      https://osu.titanic.sh/rankings/*/clears*
@@ -25,12 +25,12 @@ const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?
         target.after(completionHeader);
         completionHeader.after(document.createElement('br'));
 
-        const [ranksCount, beatmapsCount] = await Promise.all([getRanksData(), getBeatmapsData()]);
+        const [ranksCount, beatmapsCount] = await Promise.all([getClearsData(), getBeatmapsData()]);
         if (ranksCount === null || beatmapsCount === null) {
             completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
         }
         else {
-            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount / beatmapsCount * 100).toFixed(3)}%)`;
+            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.value.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount.value / beatmapsCount * 100).toFixed(3)}%) #${ranksCount.global}`;
         }
     }
 })();
@@ -54,14 +54,13 @@ async function getBeatmapsData() {
     }
 }
 
-async function getRanksData() {
+async function getClearsData() {
     try {
         const userId = Number(window.location.pathname.match(/\/u\/(\d+)/)?.[1]);
         const response = await fetch(`https://api.titanic.sh/users/${userId}`);
         const data = await response.json();
 
-        const modeData = data.stats.find(({mode}) => mode === modeIndex);
-        return ( modeData.xh_count + modeData.x_count + modeData.sh_count + modeData.s_count + modeData.a_count + modeData.b_count + modeData.c_count + modeData.d_count );
+        return data.rankings[modeIndex].clears;
     }
     catch {
         return null;
