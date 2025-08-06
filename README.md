@@ -18,7 +18,7 @@ Then create a new tampermonkey script, paste, and save the script
 
 ---
 
-Completion should now be configurable in settings and display on your profile:    
+You should now be able to use the features of this script:    
 
 ![Settings Screenshot](https://github.com/user-attachments/assets/6671e90d-7f77-485e-9e55-f378129a69d0)
 ![Profile Button Screenshot](https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6)
