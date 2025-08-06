@@ -8,7 +8,7 @@ Install Tampermonkey from one of these links:
 
 ### 2. Install the Script 
 Visit the following URL and copy **all of the code**:  
-[https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js)
+[https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js)
 
 > If Tampermonkey prompts you to install the script automatically, you can skip the manual step below.
 
