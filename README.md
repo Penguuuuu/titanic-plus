@@ -4,7 +4,7 @@ Install Tampermonkey from one of these links:
 [Firefox](https://www.tampermonkey.net/index.php?browser=firefox) / [Chrome](https://www.tampermonkey.net/index.php?browser=chrome)
 
 Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to install the script, you can skip creating a script manually):  
-   [https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js)
+[https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/refs/heads/main/fetcher.js)
 
 Create a new tampermonkey script, paste, then save the script
 
