@@ -8,7 +8,8 @@ Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to inst
 
 Create a new tampermonkey script, paste, then save the script
 
-Completion should now show on your profile, and percentage should show on the clears page:   
+Completion should now be configurable in settings and display on your profile:    
+<img width="863" height="168" alt="image" src="https://github.com/user-attachments/assets/6671e90d-7f77-485e-9e55-f378129a69d0" />
 <img width="302" height="45" alt="image" src="https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6" />
 <img width="858" height="206" alt="image" src="https://github.com/user-attachments/assets/9252b26e-bd2f-40a5-a9fc-1cc9e5c9d8dc" />
 
