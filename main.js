@@ -141,7 +141,7 @@ async function setSettings() {
 
     const sidebar = document.createElement('div');
     sidebar.className = 'sidebar-section settings-panel';
-    sidebar.innerHTML = '<a>Website+</a>';
+    sidebar.innerHTML = '<a>Titanic+</a>';
     target.append(sidebar);
 
     sidebar.addEventListener('click', async () => {
@@ -169,7 +169,7 @@ async function setSettings() {
             target.append(h1);
         }
 
-        h1.textContent = 'Website+';
+        h1.textContent = 'Titanic+';
 
         function createSection(title, id) {
             const box = document.createElement('div');
