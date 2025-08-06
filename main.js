@@ -11,30 +11,6 @@
 
 const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3));
 
-(async () => {
-    const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
-    const general = document.getElementById('general');
-
-    if (target) {
-        general.style.height = `${parseInt(general.style.height) + 35}px`;
-
-        const completionHeader = document.createElement('h4');
-        completionHeader.className = 'profile-stats-element';
-        completionHeader.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
-        completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
-        target.after(completionHeader);
-        completionHeader.after(document.createElement('br'));
-
-        const [ranksCount, beatmapsCount] = await Promise.all([getClearsData(), getBeatmapsData()]);
-        if (ranksCount === null || beatmapsCount === null) {
-            completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
-        }
-        else {
-            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.value.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount.value / beatmapsCount * 100).toFixed(3)}%) #${ranksCount.global}`;
-        }
-    }
-})();
-
 async function getBeatmapsData() {
     try {
         const response = await fetch(`https://api.titanic.sh/stats`);
@@ -66,6 +42,30 @@ async function getClearsData() {
         return null;
     }
 }
+
+(async () => {
+    const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
+    const general = document.getElementById('general');
+
+    if (target) {
+        general.style.height = `${parseInt(general.style.height) + 35}px`;
+
+        const completionHeader = document.createElement('h4');
+        completionHeader.className = 'profile-stats-element';
+        completionHeader.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
+        completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
+        target.after(completionHeader);
+        completionHeader.after(document.createElement('br'));
+
+        const [ranksCount, beatmapsCount] = await Promise.all([getClearsData(), getBeatmapsData()]);
+        if (ranksCount === null || beatmapsCount === null) {
+            completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
+        }
+        else {
+            completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.value.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount.value / beatmapsCount * 100).toFixed(3)}%) #${ranksCount.global}`;
+        }
+    }
+})();
 
 (async () => {
     const target = document.querySelectorAll('table.player-listing tbody tr');
