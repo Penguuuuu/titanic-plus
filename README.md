@@ -29,6 +29,7 @@ You should now be able to use the features of this script:
 ---
 
 ### Features
+- Display Completion stat on profiles
 - Display ranked/total score rank on profiles
 - Display percent of maps completed on the clears page
 - Ability to configure each setting on the settings page
