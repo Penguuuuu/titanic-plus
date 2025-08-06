@@ -28,5 +28,12 @@ You should now be able to use the features of this script:
 
 ---
 
+### Features
+- Display ranked/total score rank on profiles
+- Display percent of maps completed on the clears page
+- Ability to configure each setting on the settings page
+
+---
+
 ### Notes
 - For modes other than standard, completion is the sum of all maps for the selected mode and standard.
