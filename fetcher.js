@@ -13,9 +13,9 @@
 // ==/UserScript==
 
 GM_xmlhttpRequest({
-  method: "GET",
-  url: "https://raw.githubusercontent.com/Penguuuuu/titanic-completion/refs/heads/main/main.js",
-  onload: function(response) {
-    eval(response.responseText);
-  }
+    method: "GET",
+    url: "https://raw.githubusercontent.com/Penguuuuu/titanic-completion/refs/heads/main/main.js",
+    onload: function() {
+        eval(responseText);
+    }
 });
