@@ -133,21 +133,18 @@ async function setSettings() {
                 target.innerHTML = '';
             }
 
-            let h1 = document.querySelector('h1')
+            let h1 = document.querySelector('h1');
 
-            if (h1) {
-                h1.textContent = 'Completion';
-            } 
-            else {
+            if (!h1) {
                 h1 = document.createElement('h1');
-                h1.textContent = 'Completion';
                 target.append(h1);
             }
+
+            h1.textContent = 'Completion';
 
             const section = document.createElement('div');
             section.id = 'completion';
             section.className = 'section';
-
 
             const container = document.createElement('div');
             const checkbox = document.createElement('input');
