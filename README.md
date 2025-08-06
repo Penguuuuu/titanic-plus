@@ -8,21 +8,26 @@ Install Tampermonkey from one of these links:
 
 ### 2. Install the Script 
 Visit the following URL and copy **all of the code**:  
-[https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js)
+[https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js)
 
 > If Tampermonkey prompts you to install the script automatically, you can skip the manual step below.
 
 Then create a new tampermonkey script, paste, and save the script
 
+---    
 
+### Features
+- Display Completion stat on profiles
+- Display ranked/total score rank on profiles
+- Display percent values on the clears page
+- Ability to configure each setting on the settings page
 
----
+<img width="856" height="246" alt="image" src="https://github.com/user-attachments/assets/980f3177-4f7c-41e8-a269-668b84593272" />
 
-Completion should now be configurable in settings and display on your profile:    
-
-![Settings Screenshot](https://github.com/user-attachments/assets/6671e90d-7f77-485e-9e55-f378129a69d0)
-![Profile Button Screenshot](https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6)
-![Completion Preview Screenshot](https://github.com/user-attachments/assets/9252b26e-bd2f-40a5-a9fc-1cc9e5c9d8dc)
+![](https://github.com/user-attachments/assets/9252b26e-bd2f-40a5-a9fc-1cc9e5c9d8dc)
+<img width="234" height="41" alt="image" src="https://github.com/user-attachments/assets/6010c7b0-5e04-4f0f-adf2-b2438e0a8a8f" />
+![](https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6)
+<img width="225" height="41" alt="image" src="https://github.com/user-attachments/assets/fb59ff6d-b847-4748-9c68-202375f6c554" />
 
 ---
 
