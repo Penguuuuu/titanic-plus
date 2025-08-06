@@ -6,7 +6,7 @@ Install Tampermonkey from one of these links:
 Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to install the script, you can skip creating a script manually):  
 [https://raw.githubusercontent.com/Penguuuuu/titanic-completion/refs/heads/main/fetcher.js](https://raw.githubusercontent.com/Penguuuuu/titanic-completion/refs/heads/main/fetcher.js)
 
-Create a new tampermonkey script, paste, then save the script
+Create a new tampermonkey script, paste, then save the script. It will ask permission for CORS, click always allow (CORS is needed to fetch the script from the github page. This because it allows for instant updates)
 
 Completion should now be configurable in settings and display on your profile:    
 <img width="863" height="168" alt="image" src="https://github.com/user-attachments/assets/6671e90d-7f77-485e-9e55-f378129a69d0" />
@@ -15,4 +15,3 @@ Completion should now be configurable in settings and display on your profile:
 
 # Notes
 - For modes other than standard, completion is the sum of all maps for the selected mode and standard
-- It will ask permission for CORS, click always allow (CORS is needed to fetch the script from the github page. This because it allows for instant updates)
