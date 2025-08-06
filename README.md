@@ -15,3 +15,4 @@ Completion should now be configurable in settings and display on your profile:
 
 # Notes
 - For modes other than standard, completion is the sum of all maps for the selected mode and standard
+- It will ask permission for CORS, click always allow (CORS is needed to fetch the script from the github page. This because it allows for instant updates)
