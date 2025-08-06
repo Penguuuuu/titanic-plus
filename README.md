@@ -8,7 +8,7 @@ Visit this URL and copy **ALL** of the code (if Tampermonkey prompts you to inst
 
 Create a new tampermonkey script, paste, then save the script
 
-It will ask permission for CORS, click always allow (CORS is needed to fetch the script from the github page. This allows for instant updates)
+It may ask permission for CORS, click always allow (CORS is needed to fetch the script from the github page. This allows for instant updates)
 
 Completion should now be configurable in settings and display on your profile:    
 <img width="863" height="168" alt="image" src="https://github.com/user-attachments/assets/6671e90d-7f77-485e-9e55-f378129a69d0" />
