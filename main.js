@@ -1,15 +1,30 @@
 // ==UserScript==
 // @name         Titanic Completion
-// @version      1.3
+// @version      1.4
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
+// @match        https://osu.titanic.sh/account/settings/*
 // @include      https://osu.titanic.sh/rankings/*/clears*
-// @grant        none
+// @grant        GM.setValue
+// @grant        GM.getValue
 // @updateURL    https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-completion/main/main.js
 // ==/UserScript==
 
 const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id?.slice(3));
+const url = window.location.href;
+
+(async () => {
+    if (url.includes("https://osu.titanic.sh/u/") && await GM.getValue('profileCompletion', true)) {
+        setCompletionData();
+    }
+    if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && await GM.getValue('clearsPercent', true)) {
+        setclearsPercentData();
+    }
+    if (url.includes("https://osu.titanic.sh/account/settings/")) {
+        setSettings();
+    }
+})();
 
 async function getBeatmapsData() {
     try {
@@ -43,7 +58,7 @@ async function getClearsData() {
     }
 }
 
-(async () => {
+async function setCompletionData() {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     const general = document.getElementById('general');
 
@@ -62,12 +77,17 @@ async function getClearsData() {
             completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
         }
         else {
+            ranksCount.value = Math.max(0, ranksCount.value);
             completionHeader.innerHTML = `<b>Completion</b>: ${ranksCount.value.toLocaleString()} / ${beatmapsCount.toLocaleString()} (${(ranksCount.value / beatmapsCount * 100).toFixed(3)}%) #${ranksCount.global}`;
+            
+            if (ranksCount.global <= 100) {
+                completionHeader.style.color = '#0e3062';
+            }
         }
     }
-})();
+}
 
-(async () => {
+async function setclearsPercentData() {
     const target = document.querySelectorAll('table.player-listing tbody tr');
 
     if (target) {
@@ -84,4 +104,83 @@ async function getClearsData() {
             cell.innerHTML = `<b>${text} (${percent}%)</b>`;
         });
     }
-})();
+}
+
+async function setSettings() {
+    const target = document.querySelector('.sidebar');
+
+    if (target) {
+        const sidebar = document.createElement('div');
+        sidebar.className = 'sidebar-section settings-panel';
+        sidebar.innerHTML = '<a>Completion</a>';
+        target.append(sidebar);
+
+        sidebar.addEventListener('click', async () => {
+            document.querySelector('.sidebar-section.selected-sidebar').classList.remove('selected-sidebar');
+            sidebar.classList.add('selected-sidebar');
+
+            let target;
+
+            if (url.includes("https://osu.titanic.sh/account/settings/friends")) {
+                document.querySelector('.friends-heading').remove();
+
+                target = document.querySelector('.friends');
+                target.className = 'main-settings';
+                target.innerHTML = '';
+            }
+            else {
+                target = document.querySelector('.main-settings');
+                target.innerHTML = '';
+            }
+
+            let h1 = document.querySelector('h1')
+
+            if (h1) {
+                h1.textContent = 'Completion';
+            } 
+            else {
+                h1 = document.createElement('h1');
+                h1.textContent = 'Completion';
+                target.append(h1);
+            }
+
+            const section = document.createElement('div');
+            section.id = 'completion';
+            section.className = 'section';
+
+
+            const container = document.createElement('div');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = 'checkbox';
+            checkbox.checked = await GM.getValue('profileCompletion', true);
+
+            const label = document.createElement('label');
+            label.style.color = '#536482';
+            label.textContent = ' Show completion on profile';
+
+            const container1 = document.createElement('div');
+            const checkbox1 = document.createElement('input');
+            checkbox1.type = 'checkbox';
+            checkbox1.id = 'checkbox1';
+            checkbox1.checked = await GM.getValue('clearsPercent', true);
+
+            const label1 = document.createElement('label');
+            label1.style.color = '#536482';
+            label1.textContent = ' Show percentage for clears leaderboard';
+
+            container.append(checkbox, label);
+            container1.append(checkbox1, label1);
+            section.append(container, container1);
+            target.append(section);
+
+            checkbox.addEventListener('change', () => {
+                GM.setValue('profileCompletion', checkbox.checked);
+            });
+
+            checkbox1.addEventListener('change', () => {
+                GM.setValue('clearsPercent', checkbox1.checked);
+            });
+        });
+    }
+}
