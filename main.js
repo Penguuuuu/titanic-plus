@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.6
+// @version      1.4.7
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -23,7 +23,7 @@ let totalScoreIndex = 5;
 
 (async () => {
     const [
-        checkboxCompletion,
+        checkboxClears,
         checkboxAutopilot,
         checkboxRelax,
         checkboxPPV1,
@@ -31,7 +31,7 @@ let totalScoreIndex = 5;
         checkboxTotalScore,
         checkboxPercent
     ] = await Promise.all([
-        GM.getValue('checkboxCompletion', true),
+        GM.getValue('checkboxClears', true),
         GM.getValue('checkboxAutopilot', true),
         GM.getValue('checkboxRelax', true),
         GM.getValue('checkboxPPV1', true),
@@ -40,10 +40,10 @@ let totalScoreIndex = 5;
         GM.getValue('checkboxPercent', true),
     ]);
     if (url.includes("https://osu.titanic.sh/u/")) {
-        if (checkboxCompletion) {
+        if (checkboxClears) {
             rankedScoreIndex += 1;
             totalScoreIndex += 1;
-            setCompletionData();
+            setClearsData();
         }
         if (checkboxAutopilot) {
             setAutopilotData();
@@ -104,29 +104,29 @@ async function getUserData() {
     }
 }
 
-async function setCompletionData() {
+async function setClearsData() {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     if (!target) return;
 
     general.style.height = `${parseInt(general.style.height) + 35}px`;
 
-    const completionHeader = document.createElement('h4');
-    completionHeader.className = 'profile-stats-element';
-    completionHeader.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
-    completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
-    target.after(completionHeader, document.createElement('br'));
+    const header = document.createElement('h4');
+    header.className = 'profile-stats-element';
+    header.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
+    header.innerHTML = `<b>Clears</b>: Loading...`;
+    target.after(header, document.createElement('br'));
 
     const [userData, mapData] = await Promise.all([getUserData(), getMapData()]);
     if (!userData || !mapData) {
-        completionHeader.innerHTML = `<b>Completion</b>: Failed to fetch`;
+        header.innerHTML = `<b>Clears</b>: Failed to fetch`;
     }
 
     const clears = userData.rankings[modeIndex].clears;
     clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
-    completionHeader.innerHTML = `<b>Completion</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) #${clears.global}`;
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) #${clears.global}`;
 
     if (clears.global <= 100) {
-        completionHeader.style.color = '#0e3062';
+        header.style.color = '#0e3062';
     }
 }
 
@@ -294,7 +294,7 @@ async function setSettings() {
 
         const profileBox = createSection('Profile', 'profile-box');
         profileBox.section.append (
-            await createCheckbox('checkboxCompletion', 'Show completion on profile'),
+            await createCheckbox('checkboxClears', 'Show clears on profile'),
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
             await createCheckbox('checkboxRelax', 'Show relax PP on profile'),
             await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
