@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.3
+// @version      1.4.4
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -14,6 +14,7 @@
 
 const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id.slice(3));
 const url = window.location.href;
+const general = document.getElementById('general');
 
 let cachedMapData = null;
 let cachedUserData = null;
@@ -21,19 +22,27 @@ let rankedScoreIndex = 1;
 let totalScoreIndex = 5;
 
 (async () => {
-    if (url.includes("https://osu.titanic.sh/u/") && await GM.getValue('checkboxCompletion', true)) {
-        rankedScoreIndex = 2;
-        totalScoreIndex = 6;
-        setCompletionData();
+    if (url.includes("https://osu.titanic.sh/u/")) {
+        if (await GM.getValue('checkboxCompletion', true)) {
+            rankedScoreIndex += 1;
+            totalScoreIndex += 1;
+            setCompletionData();
+        }
+        if (await GM.getValue('checkboxAutopilot', true)) {
+            setAutopilotData();
+        }
+        if (await GM.getValue('checkboxRelax', true)) {
+            setRelaxData();
+        }
+        if (await GM.getValue('checkboxRankedScore', true)) {
+            setRankedScore();
+        }
+        if (await GM.getValue('checkboxTotalScore', true)) {
+            setTotalScore();
+        }
     }
     if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && await GM.getValue('checkboxPercent', true)) {
         setclearsPercentData();
-    }
-    if (await GM.getValue('checkboxRankedScore', true)) {
-        setRankedScore();
-    }
-    if (await GM.getValue('checkboxTotalScore', true)) {
-        setTotalScore();
     }
     if (url.includes("https://osu.titanic.sh/account/settings/")) {
         setSettings();
@@ -79,15 +88,13 @@ async function setCompletionData() {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     if (!target) return;
 
-    const general = document.getElementById('general');
     general.style.height = `${parseInt(general.style.height) + 35}px`;
 
     const completionHeader = document.createElement('h4');
     completionHeader.className = 'profile-stats-element';
     completionHeader.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
     completionHeader.innerHTML = `<b>Completion</b>: Loading...`;
-    target.after(completionHeader);
-    completionHeader.after(document.createElement('br'));
+    target.after(completionHeader, document.createElement('br'));
 
     const [userData, mapData] = await Promise.all([getUserData(), getMapData()]);
     if (!userData || !mapData) {
@@ -103,12 +110,52 @@ async function setCompletionData() {
     }
 }
 
+async function setRelaxData() {
+    const target = document.querySelector('.profile-performance');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 22}px`;
+
+    const header = document.createElement('div');
+    header.className = 'profile-performance';
+    header.innerHTML = `<b>Relax Performance</b>: Loading...`;
+    target.after(header);
+
+    const data = await getUserData();
+    if (!data) {
+        header.innerHTML = `<b>Relax Performance</b>: Failed to fetch`;
+    }
+
+    const pprx = data.rankings[modeIndex].pprx;
+    header.innerHTML = `<b>Relax Performance: ${Math.max(0, pprx.value).toLocaleString()}pp</b> #${pprx.global}`;
+}
+
+async function setAutopilotData() {
+    const target = document.querySelector('.profile-performance');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 22}px`;
+
+    const header = document.createElement('div');
+    header.className = 'profile-performance';
+    header.innerHTML = `<b>Autopilot Performance</b>: Loading...`;
+    target.after(header);
+
+    const data = await getUserData();
+    if (!data) {
+        header.innerHTML = `<b>Autopilot Performance</b>: Failed to fetch`;
+    }
+
+    const ppap = data.rankings[modeIndex].ppap;
+    header.innerHTML = `<b>Autopilot Performance: ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
+}
+
 async function setRankedScore() {
     const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${rankedScoreIndex})`);
     if (!target) return;
 
-    const { rankings } = await getUserData();
-    target.innerHTML += ` #${rankings[modeIndex].rscore.global}`;
+    const data = await getUserData();
+    target.innerHTML += ` #${data.rankings[modeIndex].rscore.global}`;
 }
 
 async function setTotalScore() {
@@ -208,6 +255,8 @@ async function setSettings() {
         const profileBox = createSection('Profile', 'profile-box');
         profileBox.section.append (
             await createCheckbox('checkboxCompletion', 'Show completion on profile'),
+            await createCheckbox('checkboxRelax', 'Show relax PP on profile'),
+            await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
             await createCheckbox('checkboxRankedScore', 'Show rank for ranked score on profile'),
             await createCheckbox('checkboxTotalScore', 'Show rank for total score on profile')
         );
