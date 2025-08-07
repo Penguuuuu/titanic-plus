@@ -28,7 +28,7 @@ Then create a new tampermonkey script, paste, and save the script
 <img width="234" height="41" alt="image" src="https://github.com/user-attachments/assets/6010c7b0-5e04-4f0f-adf2-b2438e0a8a8f" />
 ![](https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6)
 <img width="225" height="41" alt="image" src="https://github.com/user-attachments/assets/fb59ff6d-b847-4748-9c68-202375f6c554" />
-<img width="624" height="96" alt="image" src="https://github.com/user-attachments/assets/e081f87f-cd43-481a-a65d-6b42943042a0" />
+<img width="632" height="96" alt="image" src="https://github.com/user-attachments/assets/1a7dac6b-e671-4bdf-868c-1ee28ffbc281" />
 
 ---
 
