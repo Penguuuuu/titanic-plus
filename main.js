@@ -32,8 +32,8 @@ let totalScoreIndex = 5;
         checkboxPercent
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
-        GM.getValue('checkboxAutopilot', true),
-        GM.getValue('checkboxRelax', true),
+        GM.getValue('checkboxAutopilot', false),
+        GM.getValue('checkboxRelax', false),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxRankedScore', true),
         GM.getValue('checkboxTotalScore', true),
