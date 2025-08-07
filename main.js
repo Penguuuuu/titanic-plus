@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.2
+// @version      1.4.3
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -17,11 +17,13 @@ const url = window.location.href;
 
 let cachedMapData = null;
 let cachedUserData = null;
-let statIndex = 5;
+let rankedScoreIndex = 1;
+let totalScoreIndex = 5;
 
 (async () => {
     if (url.includes("https://osu.titanic.sh/u/") && await GM.getValue('checkboxCompletion', true)) {
-        statIndex = 6;
+        rankedScoreIndex = 2;
+        totalScoreIndex = 6;
         setCompletionData();
     }
     if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && await GM.getValue('checkboxPercent', true)) {
@@ -95,14 +97,14 @@ async function setCompletionData() {
     const clears = userData.rankings[modeIndex].clears;
     clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
     completionHeader.innerHTML = `<b>Completion</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) #${clears.global}`;
-    
+
     if (clears.global <= 100) {
         completionHeader.style.color = '#0e3062';
     }
 }
 
 async function setRankedScore() {
-    const target = document.querySelector('.profile-stats-element-rscore');
+    const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${rankedScoreIndex})`);
     if (!target) return;
 
     const { rankings } = await getUserData();
@@ -110,7 +112,7 @@ async function setRankedScore() {
 }
 
 async function setTotalScore() {
-    const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${statIndex})`);
+    const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${totalScoreIndex})`);
     if (!target) return;
 
     const { rankings } = await getUserData();
@@ -206,7 +208,7 @@ async function setSettings() {
         const profileBox = createSection('Profile', 'profile-box');
         profileBox.section.append (
             await createCheckbox('checkboxCompletion', 'Show completion on profile'),
-            await createCheckbox('checkboxRankedScore', 'Show rank for ranked score on profile'), 
+            await createCheckbox('checkboxRankedScore', 'Show rank for ranked score on profile'),
             await createCheckbox('checkboxTotalScore', 'Show rank for total score on profile')
         );
 
