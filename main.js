@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.4
+// @version      1.4.5
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -34,11 +34,14 @@ let totalScoreIndex = 5;
         if (await GM.getValue('checkboxRelax', true)) {
             setRelaxData();
         }
+        if (await GM.getValue('checkboxPPV1', true)) {
+            setPPV1Data();
+        }
         if (await GM.getValue('checkboxRankedScore', true)) {
-            setRankedScore();
+            setRankedScoreData();
         }
         if (await GM.getValue('checkboxTotalScore', true)) {
-            setTotalScore();
+            setTotalScoreData();
         }
     }
     if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && await GM.getValue('checkboxPercent', true)) {
@@ -110,6 +113,26 @@ async function setCompletionData() {
     }
 }
 
+async function setPPV1Data() {
+    const target = document.querySelector('.profile-performance');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 22}px`;
+
+    const header = document.createElement('div');
+    header.className = 'profile-performance';
+    header.innerHTML = `<b>PPv1 Performance</b>: Loading...`;
+    target.after(header);
+
+    const data = await getUserData();
+    if (!data) {
+        header.innerHTML = `<b>PPv1 Performance</b>: Failed to fetch`;
+    }
+
+    const ppv1 = data.rankings[modeIndex].ppv1;
+    header.innerHTML = `<b>PPv1 Performance: ${Math.max(0, ppv1.value).toLocaleString()}pp</b> #${ppv1.global}`;
+}
+
 async function setRelaxData() {
     const target = document.querySelector('.profile-performance');
     if (!target) return;
@@ -150,7 +173,7 @@ async function setAutopilotData() {
     header.innerHTML = `<b>Autopilot Performance: ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
 }
 
-async function setRankedScore() {
+async function setRankedScoreData() {
     const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${rankedScoreIndex})`);
     if (!target) return;
 
@@ -158,7 +181,7 @@ async function setRankedScore() {
     target.innerHTML += ` #${data.rankings[modeIndex].rscore.global}`;
 }
 
-async function setTotalScore() {
+async function setTotalScoreData() {
     const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${totalScoreIndex})`);
     if (!target) return;
 
@@ -255,6 +278,7 @@ async function setSettings() {
         const profileBox = createSection('Profile', 'profile-box');
         profileBox.section.append (
             await createCheckbox('checkboxCompletion', 'Show completion on profile'),
+            await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
             await createCheckbox('checkboxRelax', 'Show relax PP on profile'),
             await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
             await createCheckbox('checkboxRankedScore', 'Show rank for ranked score on profile'),
