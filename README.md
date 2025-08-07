@@ -19,10 +19,11 @@ Then create a new tampermonkey script, paste, and save the script
 ### Features
 - Display Completion stat on profiles
 - Display ranked/total score rank on profiles
+- Display more PP values (PPv1, RX, AP) on profiles
 - Display percent values on the clears page
 - Ability to configure each setting on the settings page
 
-<img width="857" height="241" alt="image" src="https://github.com/user-attachments/assets/9eeeaa1e-d76c-4676-b91b-6d31d2e63487" />
+<img width="859" height="312" alt="image" src="https://github.com/user-attachments/assets/8d82def8-bebe-4619-b4c6-d3fb91bb561d" />
 
 ![](https://github.com/user-attachments/assets/9252b26e-bd2f-40a5-a9fc-1cc9e5c9d8dc)
 <img width="234" height="41" alt="image" src="https://github.com/user-attachments/assets/6010c7b0-5e04-4f0f-adf2-b2438e0a8a8f" />
