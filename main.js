@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.5
+// @version      1.4.6
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -22,29 +22,46 @@ let rankedScoreIndex = 1;
 let totalScoreIndex = 5;
 
 (async () => {
+    const [
+        checkboxCompletion,
+        checkboxAutopilot,
+        checkboxRelax,
+        checkboxPPV1,
+        checkboxRankedScore,
+        checkboxTotalScore,
+        checkboxPercent
+    ] = await Promise.all([
+        GM.getValue('checkboxCompletion', true),
+        GM.getValue('checkboxAutopilot', true),
+        GM.getValue('checkboxRelax', true),
+        GM.getValue('checkboxPPV1', true),
+        GM.getValue('checkboxRankedScore', true),
+        GM.getValue('checkboxTotalScore', true),
+        GM.getValue('checkboxPercent', true),
+    ]);
     if (url.includes("https://osu.titanic.sh/u/")) {
-        if (await GM.getValue('checkboxCompletion', true)) {
+        if (checkboxCompletion) {
             rankedScoreIndex += 1;
             totalScoreIndex += 1;
             setCompletionData();
         }
-        if (await GM.getValue('checkboxAutopilot', true)) {
+        if (checkboxAutopilot) {
             setAutopilotData();
         }
-        if (await GM.getValue('checkboxRelax', true)) {
+        if (checkboxRelax) {
             setRelaxData();
         }
-        if (await GM.getValue('checkboxPPV1', true)) {
+        if (checkboxPPV1) {
             setPPV1Data();
         }
-        if (await GM.getValue('checkboxRankedScore', true)) {
+        if (checkboxRankedScore) {
             setRankedScoreData();
         }
-        if (await GM.getValue('checkboxTotalScore', true)) {
+        if (checkboxTotalScore) {
             setTotalScoreData();
         }
     }
-    if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && await GM.getValue('checkboxPercent', true)) {
+    if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && checkboxPercent) {
         setclearsPercentData();
     }
     if (url.includes("https://osu.titanic.sh/account/settings/")) {
@@ -121,16 +138,16 @@ async function setPPV1Data() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>PPv1 Performance</b>: Loading...`;
+    header.innerHTML = `<b>Performance (PPv1)</b>: Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>PPv1 Performance</b>: Failed to fetch`;
+        header.innerHTML = `<b>Performance (PPv1)</b>: Failed to fetch`;
     }
 
     const ppv1 = data.rankings[modeIndex].ppv1;
-    header.innerHTML = `<b>PPv1 Performance: ${Math.max(0, ppv1.value).toLocaleString()}pp</b> #${ppv1.global}`;
+    header.innerHTML = `<b>Performance (PPv1): ${Math.max(0, ppv1.value).toLocaleString()}pp</b> #${ppv1.global}`;
 }
 
 async function setRelaxData() {
@@ -141,16 +158,16 @@ async function setRelaxData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>Relax Performance</b>: Loading...`;
+    header.innerHTML = `<b>Performance (RX)</b>: Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>Relax Performance</b>: Failed to fetch`;
+        header.innerHTML = `<b>Performance (RX)</b>: Failed to fetch`;
     }
 
     const pprx = data.rankings[modeIndex].pprx;
-    header.innerHTML = `<b>Relax Performance: ${Math.max(0, pprx.value).toLocaleString()}pp</b> #${pprx.global}`;
+    header.innerHTML = `<b>Performance (RX): ${Math.max(0, pprx.value).toLocaleString()}pp</b> #${pprx.global}`;
 }
 
 async function setAutopilotData() {
@@ -161,16 +178,16 @@ async function setAutopilotData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>Autopilot Performance</b>: Loading...`;
+    header.innerHTML = `<b>Performance (AP)</b>: Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>Autopilot Performance</b>: Failed to fetch`;
+        header.innerHTML = `<b>Performance (AP)</b>: Failed to fetch`;
     }
 
     const ppap = data.rankings[modeIndex].ppap;
-    header.innerHTML = `<b>Autopilot Performance: ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
+    header.innerHTML = `<b>Performance (AP): ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
 }
 
 async function setRankedScoreData() {
