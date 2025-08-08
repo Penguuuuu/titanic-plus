@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.6
+// @version      1.4.8
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -109,7 +109,7 @@ async function setClearsData() {
 
     const clears = userData.rankings[modeIndex].clears;
     clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
-    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}% (#${clears.global}))`;
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) (#${clears.global})`;
 
     if (clears.global <= 100) {
         header.style.color = '#0e3062';
