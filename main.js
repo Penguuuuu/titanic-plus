@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.7
+// @version      1.4.6
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -18,8 +18,6 @@ const general = document.getElementById('general');
 
 let cachedMapData = null;
 let cachedUserData = null;
-let rankedScoreIndex = 1;
-let totalScoreIndex = 5;
 
 (async () => {
     const [
@@ -27,22 +25,16 @@ let totalScoreIndex = 5;
         checkboxAutopilot,
         checkboxRelax,
         checkboxPPV1,
-        checkboxRankedScore,
-        checkboxTotalScore,
         checkboxPercent
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxAutopilot', false),
         GM.getValue('checkboxRelax', false),
         GM.getValue('checkboxPPV1', true),
-        GM.getValue('checkboxRankedScore', true),
-        GM.getValue('checkboxTotalScore', true),
         GM.getValue('checkboxPercent', true),
     ]);
     if (url.includes("https://osu.titanic.sh/u/")) {
         if (checkboxClears) {
-            rankedScoreIndex += 1;
-            totalScoreIndex += 1;
             setClearsData();
         }
         if (checkboxAutopilot) {
@@ -53,12 +45,6 @@ let totalScoreIndex = 5;
         }
         if (checkboxPPV1) {
             setPPV1Data();
-        }
-        if (checkboxRankedScore) {
-            setRankedScoreData();
-        }
-        if (checkboxTotalScore) {
-            setTotalScoreData();
         }
     }
     if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && checkboxPercent) {
@@ -123,7 +109,7 @@ async function setClearsData() {
 
     const clears = userData.rankings[modeIndex].clears;
     clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
-    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) #${clears.global}`;
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}% (#${clears.global}))`;
 
     if (clears.global <= 100) {
         header.style.color = '#0e3062';
@@ -188,22 +174,6 @@ async function setAutopilotData() {
 
     const ppap = data.rankings[modeIndex].ppap;
     header.innerHTML = `<b>Performance (AP): ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
-}
-
-async function setRankedScoreData() {
-    const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${rankedScoreIndex})`);
-    if (!target) return;
-
-    const data = await getUserData();
-    target.innerHTML += ` #${data.rankings[modeIndex].rscore.global}`;
-}
-
-async function setTotalScoreData() {
-    const target = document.querySelector(`.profile-detailed-stats > h4:nth-of-type(${totalScoreIndex})`);
-    if (!target) return;
-
-    const { rankings } = await getUserData();
-    target.innerHTML += ` #${rankings[modeIndex].tscore.global}`;
 }
 
 async function setclearsPercentData() {
@@ -298,8 +268,6 @@ async function setSettings() {
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
             await createCheckbox('checkboxRelax', 'Show relax PP on profile'),
             await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
-            await createCheckbox('checkboxRankedScore', 'Show rank for ranked score on profile'),
-            await createCheckbox('checkboxTotalScore', 'Show rank for total score on profile')
         );
 
         const otherBox = createSection('Other', 'other-box');
