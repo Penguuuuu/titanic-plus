@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.8
+// @version      1.4.9
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -109,7 +109,7 @@ async function setClearsData() {
 
     const clears = userData.rankings[modeIndex].clears;
     clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
-    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} (${(clears.value / mapData * 100).toFixed(3)}%) (#${clears.global})`;
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} | ${(clears.value / mapData * 100).toFixed(3)}% (#${clears.global})`;
 
     if (clears.global <= 100) {
         header.style.color = '#0e3062';
@@ -124,16 +124,16 @@ async function setPPV1Data() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>Performance (PPv1)</b>: Loading...`;
+    header.innerHTML = `<b>PPv1:</b> Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>Performance (PPv1)</b>: Failed to fetch`;
+        header.innerHTML = `<b>PPv1:</b> Failed to fetch`;
     }
 
     const ppv1 = data.rankings[modeIndex].ppv1;
-    header.innerHTML = `<b>Performance (PPv1): ${Math.max(0, ppv1.value).toLocaleString()}pp</b> #${ppv1.global}`;
+    header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
 }
 
 async function setRelaxData() {
@@ -144,16 +144,16 @@ async function setRelaxData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>Performance (RX)</b>: Loading...`;
+    header.innerHTML = `<b>RX:</b> Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>Performance (RX)</b>: Failed to fetch`;
+        header.innerHTML = `<b>RX:</b> Failed to fetch`;
     }
 
     const pprx = data.rankings[modeIndex].pprx;
-    header.innerHTML = `<b>Performance (RX): ${Math.max(0, pprx.value).toLocaleString()}pp</b> #${pprx.global}`;
+    header.innerHTML = `<b>RX: ${Math.max(0, pprx.value).toLocaleString()}pp (#${pprx.global})</b>`;
 }
 
 async function setAutopilotData() {
@@ -164,16 +164,16 @@ async function setAutopilotData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>Performance (AP)</b>: Loading...`;
+    header.innerHTML = `<b>AP:</b> Loading...`;
     target.after(header);
 
     const data = await getUserData();
     if (!data) {
-        header.innerHTML = `<b>Performance (AP)</b>: Failed to fetch`;
+        header.innerHTML = `<b>AP:</b> Failed to fetch`;
     }
 
     const ppap = data.rankings[modeIndex].ppap;
-    header.innerHTML = `<b>Performance (AP): ${Math.max(0, ppap.value).toLocaleString()}pp</b> #${ppap.global}`;
+    header.innerHTML = `<b>AP: ${Math.max(0, ppap.value).toLocaleString()}pp (#${ppap.global})</b>`;
 }
 
 async function setclearsPercentData() {
