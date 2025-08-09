@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.1
+// @version      1.5.2
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -28,14 +28,19 @@ let cachedUserData;
         checkboxAutopilot,
         checkboxRelax,
         checkboxPPV1,
-        checkboxPercent
+        checkboxPercent,
+        checkboxLeftPanel
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxAutopilot', false),
         GM.getValue('checkboxRelax', false),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
+        GM.getValue('checkboxLeftPanel', true)
     ]);
+    if (url.includes('/u/') && checkboxLeftPanel) {
+        setPlaystyleContainer();
+    }
     if (url.includes('/rankings/osu/clears') && checkboxPercent) {
         setclearsPercentData();
     }
@@ -192,6 +197,33 @@ function setclearsPercentData() {
     });
 }
 
+function setPlaystyleContainer() {
+
+    const target = document.querySelector('.profile-left');
+    if (!target) return;
+
+    target.style.float = 'none';
+
+    const playstyle = document.querySelector('.playstyle-container')
+    playstyle.style.display = 'flex';
+    playstyle.style.justifyContent = 'center';
+    playstyle.style.alignItems = 'center';
+    playstyle.style.background = '#dad7fb';
+    playstyle.style.padding = '5px';
+    playstyle.style.gap = '5px';
+    playstyle.style.margin = 0;
+    playstyle.style.marginTop = '15px';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'profile-left-wrapper';
+    wrapper.style.position = 'sticky';
+    wrapper.style.float = 'left';
+    wrapper.style.top = 0;
+    
+    target.parentNode.insertBefore(wrapper, target);
+    wrapper.append(target, playstyle);
+}
+
 async function setSettings() {
     const target = document.querySelector('.sidebar');
     if (!target) return;
@@ -270,7 +302,8 @@ async function setSettings() {
 
         const otherBox = createSection('other-box', 'Other');
         otherBox.section.append (
-            await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard')
+            await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
+            await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile')
         );
 
         target.append(profileBox.box, otherBox.box);
