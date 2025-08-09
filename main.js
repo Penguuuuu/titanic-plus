@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.4.9
+// @version      1.5.0
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -33,6 +33,12 @@ let cachedUserData = null;
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
     ]);
+    if (checkboxClears || checkboxAutopilot || checkboxRelax || checkboxPPV1) {
+        await getUserData();
+    }
+    if (checkboxClears) {
+        await getMapData();
+    }
     if (url.includes("https://osu.titanic.sh/u/")) {
         if (checkboxClears) {
             setClearsData();
@@ -83,7 +89,7 @@ async function getUserData() {
         const userId = Number(window.location.pathname.match(/\/u\/(\d+)/)?.[1]);
         const response = await fetch(`https://api.titanic.sh/users/${userId}`);
 
-        return cachedUserData = response.json();
+        return cachedUserData = await response.json();
     }
     catch {
         return cachedUserData;
@@ -102,14 +108,13 @@ async function setClearsData() {
     header.innerHTML = `<b>Clears</b>: Loading...`;
     target.after(header, document.createElement('br'));
 
-    const [userData, mapData] = await Promise.all([getUserData(), getMapData()]);
-    if (!userData || !mapData) {
+    if (!cachedUserData || !cachedMapData) {
         header.innerHTML = `<b>Clears</b>: Failed to fetch`;
     }
 
-    const clears = userData.rankings[modeIndex].clears;
-    clears.value = Math.max(0, userData.rankings[modeIndex].clears.value);
-    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${mapData.toLocaleString()} | ${(clears.value / mapData * 100).toFixed(3)}% (#${clears.global})`;
+    const clears = cachedUserData.rankings[modeIndex].clears;
+    clears.value = Math.max(0, cachedUserData.rankings[modeIndex].clears.value);
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${cachedMapData.toLocaleString()} | ${(clears.value / cachedMapData * 100).toFixed(3)}% (#${clears.global})`;
 
     if (clears.global <= 100) {
         header.style.color = '#0e3062';
@@ -127,12 +132,11 @@ async function setPPV1Data() {
     header.innerHTML = `<b>PPv1:</b> Loading...`;
     target.after(header);
 
-    const data = await getUserData();
-    if (!data) {
+    if (!cachedUserData) {
         header.innerHTML = `<b>PPv1:</b> Failed to fetch`;
     }
 
-    const ppv1 = data.rankings[modeIndex].ppv1;
+    const ppv1 = cachedUserData.rankings[modeIndex].ppv1;
     header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
 }
 
@@ -147,12 +151,11 @@ async function setRelaxData() {
     header.innerHTML = `<b>RX:</b> Loading...`;
     target.after(header);
 
-    const data = await getUserData();
-    if (!data) {
+    if (!cachedUserData) {
         header.innerHTML = `<b>RX:</b> Failed to fetch`;
     }
 
-    const pprx = data.rankings[modeIndex].pprx;
+    const pprx = cachedUserData.rankings[modeIndex].pprx;
     header.innerHTML = `<b>RX: ${Math.max(0, pprx.value).toLocaleString()}pp (#${pprx.global})</b>`;
 }
 
@@ -167,12 +170,11 @@ async function setAutopilotData() {
     header.innerHTML = `<b>AP:</b> Loading...`;
     target.after(header);
 
-    const data = await getUserData();
-    if (!data) {
+    if (!cachedUserData) {
         header.innerHTML = `<b>AP:</b> Failed to fetch`;
     }
 
-    const ppap = data.rankings[modeIndex].ppap;
+    const ppap = cachedUserData.rankings[modeIndex].ppap;
     header.innerHTML = `<b>AP: ${Math.max(0, ppap.value).toLocaleString()}pp (#${ppap.global})</b>`;
 }
 
