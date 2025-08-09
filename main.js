@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.0
+// @version      1.5.1
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -16,10 +16,13 @@ const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?
 const url = window.location.href;
 const general = document.getElementById('general');
 
-let cachedMapData = null;
-let cachedUserData = null;
+let cachedMapData;
+let cachedUserData;
 
 (async () => {
+    if (url.includes('/account/settings/')) {
+        setSettings();
+    }
     const [
         checkboxClears,
         checkboxAutopilot,
@@ -33,13 +36,16 @@ let cachedUserData = null;
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
     ]);
+    if (url.includes('/rankings/osu/clears') && checkboxPercent) {
+        setclearsPercentData();
+    }
     if (checkboxClears || checkboxAutopilot || checkboxRelax || checkboxPPV1) {
         await getUserData();
     }
     if (checkboxClears) {
         await getMapData();
     }
-    if (url.includes("https://osu.titanic.sh/u/")) {
+    if (url.includes('/u/')) {
         if (checkboxClears) {
             setClearsData();
         }
@@ -52,12 +58,6 @@ let cachedUserData = null;
         if (checkboxPPV1) {
             setPPV1Data();
         }
-    }
-    if (url.includes("https://osu.titanic.sh/rankings/osu/clears") && checkboxPercent) {
-        setclearsPercentData();
-    }
-    if (url.includes("https://osu.titanic.sh/account/settings/")) {
-        setSettings();
     }
 })();
 
@@ -96,7 +96,7 @@ async function getUserData() {
     }
 }
 
-async function setClearsData() {
+function setClearsData() {
     const target = document.querySelector('.profile-detailed-stats h3.profile-stats-header');
     if (!target) return;
 
@@ -105,7 +105,6 @@ async function setClearsData() {
     const header = document.createElement('h4');
     header.className = 'profile-stats-element';
     header.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
-    header.innerHTML = `<b>Clears</b>: Loading...`;
     target.after(header, document.createElement('br'));
 
     if (!cachedUserData || !cachedMapData) {
@@ -121,7 +120,7 @@ async function setClearsData() {
     }
 }
 
-async function setPPV1Data() {
+function setPPV1Data() {
     const target = document.querySelector('.profile-performance');
     if (!target) return;
 
@@ -129,7 +128,6 @@ async function setPPV1Data() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>PPv1:</b> Loading...`;
     target.after(header);
 
     if (!cachedUserData) {
@@ -140,7 +138,7 @@ async function setPPV1Data() {
     header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
 }
 
-async function setRelaxData() {
+function setRelaxData() {
     const target = document.querySelector('.profile-performance');
     if (!target) return;
 
@@ -148,7 +146,6 @@ async function setRelaxData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>RX:</b> Loading...`;
     target.after(header);
 
     if (!cachedUserData) {
@@ -159,7 +156,7 @@ async function setRelaxData() {
     header.innerHTML = `<b>RX: ${Math.max(0, pprx.value).toLocaleString()}pp (#${pprx.global})</b>`;
 }
 
-async function setAutopilotData() {
+function setAutopilotData() {
     const target = document.querySelector('.profile-performance');
     if (!target) return;
 
@@ -167,7 +164,6 @@ async function setAutopilotData() {
 
     const header = document.createElement('div');
     header.className = 'profile-performance';
-    header.innerHTML = `<b>AP:</b> Loading...`;
     target.after(header);
 
     if (!cachedUserData) {
@@ -178,7 +174,7 @@ async function setAutopilotData() {
     header.innerHTML = `<b>AP: ${Math.max(0, ppap.value).toLocaleString()}pp (#${ppap.global})</b>`;
 }
 
-async function setclearsPercentData() {
+function setclearsPercentData() {
     const target = document.querySelectorAll('table.player-listing tbody tr');
     if (!target) return;
 
@@ -232,12 +228,12 @@ async function setSettings() {
 
         h1.textContent = 'Titanic+';
 
-        function createSection(title, id) {
+        function createSection(id, text) {
             const box = document.createElement('div');
             box.id = id;
 
             const heading = document.createElement('h2');
-            heading.textContent = title;
+            heading.textContent = text;
 
             const section = document.createElement('div');
             section.className = 'section';
@@ -264,7 +260,7 @@ async function setSettings() {
         return container;
         }
 
-        const profileBox = createSection('Profile', 'profile-box');
+        const profileBox = createSection('profile-box', 'Profile');
         profileBox.section.append (
             await createCheckbox('checkboxClears', 'Show clears on profile'),
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
@@ -272,7 +268,7 @@ async function setSettings() {
             await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
         );
 
-        const otherBox = createSection('Other', 'other-box');
+        const otherBox = createSection('other-box', 'Other');
         otherBox.section.append (
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard')
         );
