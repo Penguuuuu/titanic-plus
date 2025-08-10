@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.3
+// @version      1.5.4
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -201,9 +201,6 @@ function setPlaystyleContainer() {
 
     const target = document.querySelector('.profile-left');
     if (!target) return;
-
-    target.style.float = 'none';
-
     
     const wrapper = document.createElement('div');
     wrapper.className = 'profile-left-wrapper';
@@ -212,7 +209,7 @@ function setPlaystyleContainer() {
     wrapper.style.top = 0;
 
     const leftBottom = document.querySelector('.left-bottom')
-    leftBottom.style.margin = '10px 10px 0 10px';
+    leftBottom.style.margin = '0 10px 0 10px';
 
     const playstyle = document.querySelector('.playstyle-container')
     playstyle.style.display = 'flex';
@@ -222,7 +219,11 @@ function setPlaystyleContainer() {
     playstyle.style.padding = '5px';
     playstyle.style.gap = '5px';
     playstyle.style.margin = 0;
-    playstyle.style.marginTop = '15px';
+    playstyle.style.marginTop = '10px';
+
+    if (playstyle) {
+        target.style.float = 'none';
+    }
     
     target.parentNode.insertBefore(wrapper, target);
     wrapper.append(target, playstyle);
