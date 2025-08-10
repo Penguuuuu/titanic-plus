@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.5
+// @version      1.5.6
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -223,7 +223,7 @@ function setPlaystyleContainer() {
 
     const social = document.querySelector('.userpage-social');
     if (social.innerHTML.trim() === '') {
-        social.remove();
+        social.style.paddingBottom = 0;
     }
 
     if (playstyle) {
