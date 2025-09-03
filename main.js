@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.6
+// @version      1.5.7
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -20,49 +20,25 @@ let cachedMapData;
 let cachedUserData;
 
 (async () => {
-    if (url.includes('/account/settings/')) {
-        setSettings();
-    }
+    if (url.includes('/account/settings/')) setSettings();
     const [
         checkboxClears,
-        checkboxAutopilot,
-        checkboxRelax,
         checkboxPPV1,
         checkboxPercent,
         checkboxLeftPanel
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
-        GM.getValue('checkboxAutopilot', false),
-        GM.getValue('checkboxRelax', false),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
         GM.getValue('checkboxLeftPanel', true)
     ]);
-    if (url.includes('/u/') && checkboxLeftPanel) {
-        setPlaystyleContainer();
-    }
-    if (url.includes('/rankings/osu/clears') && checkboxPercent) {
-        setclearsPercentData();
-    }
-    if (checkboxClears || checkboxAutopilot || checkboxRelax || checkboxPPV1) {
-        await getUserData();
-    }
-    if (checkboxClears) {
-        await getMapData();
-    }
+    if (url.includes('/u/') && checkboxLeftPanel) setPlaystyleContainer();
+    if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
+    if (checkboxClears || checkboxPPV1) await getUserData();
+    if (checkboxClears) await getMapData();
     if (url.includes('/u/')) {
-        if (checkboxClears) {
-            setClearsData();
-        }
-        if (checkboxAutopilot) {
-            setAutopilotData();
-        }
-        if (checkboxRelax) {
-            setRelaxData();
-        }
-        if (checkboxPPV1) {
-            setPPV1Data();
-        }
+        if (checkboxClears) setClearsData();
+        if (checkboxPPV1) setPPV1Data();
     }
 })();
 
@@ -75,16 +51,10 @@ async function getMapData() {
 
         const modeData = data.beatmap_modes[modeIndex];
         const standardData = data.beatmap_modes[0];
-        if (modeIndex !== 0) {
-            return cachedMapData = modeData.count_qualified + modeData.count_approved + modeData.count_ranked + modeData.count_loved + standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
-        }
-        else {
-            return cachedMapData = standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
-        }
+        if (modeIndex !== 0) return cachedMapData = modeData.count_qualified + modeData.count_approved + modeData.count_ranked + modeData.count_loved + standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
+        else return cachedMapData = standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
     }
-    catch {
-        return cachedMapData;
-    }
+    catch {return cachedMapData};
 }
 
 async function getUserData() {
@@ -96,9 +66,7 @@ async function getUserData() {
 
         return cachedUserData = await response.json();
     }
-    catch {
-        return cachedUserData;
-    }
+    catch {return cachedUserData};
 }
 
 function setClearsData() {
@@ -112,17 +80,13 @@ function setClearsData() {
     header.title = 'All qualified, approved, ranked, and loved maps. Converts are included for non-standard modes.';
     target.after(header, document.createElement('br'));
 
-    if (!cachedUserData || !cachedMapData) {
-        header.innerHTML = `<b>Clears</b>: Failed to fetch`;
-    }
+    if (!cachedUserData || !cachedMapData) header.innerHTML = `<b>Clears</b>: Failed to fetch`;
 
     const clears = cachedUserData.rankings[modeIndex].clears;
     clears.value = Math.max(0, cachedUserData.rankings[modeIndex].clears.value);
     header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${cachedMapData.toLocaleString()} | ${(clears.value / cachedMapData * 100).toFixed(3)}% (#${clears.global})`;
 
-    if (clears.global <= 100) {
-        header.style.color = '#0e3062';
-    }
+    if (clears.global <= 100) header.style.color = '#0e3062';
 }
 
 function setPPV1Data() {
@@ -135,48 +99,10 @@ function setPPV1Data() {
     header.className = 'profile-performance';
     target.after(header);
 
-    if (!cachedUserData) {
-        header.innerHTML = `<b>PPv1:</b> Failed to fetch`;
-    }
+    if (!cachedUserData) header.innerHTML = `<b>PPv1:</b> Failed to fetch`;
 
     const ppv1 = cachedUserData.rankings[modeIndex].ppv1;
     header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
-}
-
-function setRelaxData() {
-    const target = document.querySelector('.profile-performance');
-    if (!target) return;
-
-    general.style.height = `${parseInt(general.style.height) + 22}px`;
-
-    const header = document.createElement('div');
-    header.className = 'profile-performance';
-    target.after(header);
-
-    if (!cachedUserData) {
-        header.innerHTML = `<b>RX:</b> Failed to fetch`;
-    }
-
-    const pprx = cachedUserData.rankings[modeIndex].pprx;
-    header.innerHTML = `<b>RX: ${Math.max(0, pprx.value).toLocaleString()}pp (#${pprx.global})</b>`;
-}
-
-function setAutopilotData() {
-    const target = document.querySelector('.profile-performance');
-    if (!target) return;
-
-    general.style.height = `${parseInt(general.style.height) + 22}px`;
-
-    const header = document.createElement('div');
-    header.className = 'profile-performance';
-    target.after(header);
-
-    if (!cachedUserData) {
-        header.innerHTML = `<b>AP:</b> Failed to fetch`;
-    }
-
-    const ppap = cachedUserData.rankings[modeIndex].ppap;
-    header.innerHTML = `<b>AP: ${Math.max(0, ppap.value).toLocaleString()}pp (#${ppap.global})</b>`;
 }
 
 function setclearsPercentData() {
@@ -201,7 +127,7 @@ function setPlaystyleContainer() {
 
     const target = document.querySelector('.profile-left');
     if (!target) return;
-    
+
     const wrapper = document.createElement('div');
     wrapper.className = 'profile-left-wrapper';
     wrapper.style.position = 'sticky';
@@ -222,14 +148,10 @@ function setPlaystyleContainer() {
     playstyle.style.marginTop = '10px';
 
     const social = document.querySelector('.userpage-social');
-    if (social.innerHTML.trim() === '') {
-        social.style.paddingBottom = 0;
-    }
+    if (social.innerHTML.trim() === '') social.style.paddingBottom = 0;
 
-    if (playstyle) {
-        target.style.float = 'none';
-    }
-    
+    if (playstyle) target.style.float = 'none';
+
     target.parentNode.insertBefore(wrapper, target);
     wrapper.append(target, playstyle);
 }
@@ -306,8 +228,6 @@ async function setSettings() {
         profileBox.section.append (
             await createCheckbox('checkboxClears', 'Show clears on profile'),
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
-            await createCheckbox('checkboxRelax', 'Show relax PP on profile'),
-            await createCheckbox('checkboxAutopilot', 'Show autopilot PP on profile'),
         );
 
         const otherBox = createSection('other-box', 'Other');
