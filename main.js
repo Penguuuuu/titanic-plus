@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.7
+// @version      1.5.8
 // @author       Patchouli
 // @match        https://osu.titanic.sh/u/*
 // @match        https://osu.titanic.sh/account/settings/*
@@ -25,12 +25,16 @@ let cachedUserData;
         checkboxClears,
         checkboxPPV1,
         checkboxPercent,
-        checkboxLeftPanel
+        checkboxLeftPanel,
+        checkboxHitsPerPlay,
+        checkboxScorePerPlay
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
-        GM.getValue('checkboxLeftPanel', true)
+        GM.getValue('checkboxLeftPanel', true),
+        GM.getValue('checkboxHitsPerPlay', true),
+        GM.getValue('checkboxScorePerPlay', true)
     ]);
     if (url.includes('/u/') && checkboxLeftPanel) setPlaystyleContainer();
     if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
@@ -39,6 +43,11 @@ let cachedUserData;
     if (url.includes('/u/')) {
         if (checkboxClears) setClearsData();
         if (checkboxPPV1) setPPV1Data();
+        if (checkboxHitsPerPlay) setHitsPerPlayData();
+        if (checkboxScorePerPlay) {
+            setTotalScorePerPlay();
+            setRankedScorePerPlay();
+        }
     }
 })();
 
@@ -89,6 +98,57 @@ function setClearsData() {
     if (clears.global <= 100) header.style.color = '#0e3062';
 }
 
+function setHitsPerPlayData() {
+    const target = document.querySelector('.profile-stats-element[title="Total notes hit."]');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 35}px`;
+
+    const header = document.createElement('h4');
+    header.className = 'profile-stats-element';
+    header.title = 'Notes hit per play';
+    target.after(document.createElement('br'), header);
+
+    if (!cachedUserData) header.innerHTML = `<b>Hits Per Play</b>: Failed to fetch`;
+
+    const hitsPerPlay = Math.round(cachedUserData.stats[modeIndex].total_hits / cachedUserData.stats[modeIndex].playcount);
+    header.innerHTML = `<b>Hits Per Play</b>: ${hitsPerPlay.toLocaleString()}`;
+}
+
+function setRankedScorePerPlay() {
+    const target = document.querySelector('h4.profile-stats-element[title^="Ranked Score"]');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 35}px`;
+
+    const header = document.createElement('h4');
+    header.className = 'profile-stats-element';
+    header.title = 'The average ranked score achieved per play';
+    target.after(document.createElement('br'), header);
+
+    if (!cachedUserData) header.innerHTML = `<b>Ranked Score Per Play</b>: Failed to fetch`;
+
+    const rankedScorePerPlay = Math.round(cachedUserData.stats[modeIndex].rscore / cachedUserData.stats[modeIndex].playcount);
+    header.innerHTML = `<b>Ranked Score Per Play</b>: ${rankedScorePerPlay.toLocaleString()}`;
+}
+
+function setTotalScorePerPlay() {
+    const target = document.querySelector('h4.profile-stats-element[title^="Total points"]');
+    if (!target) return;
+
+    general.style.height = `${parseInt(general.style.height) + 35}px`;
+
+    const header = document.createElement('h4');
+    header.className = 'profile-stats-element';
+    header.title = 'The average ranked score achieved per play';
+    target.after(document.createElement('br'), header);
+
+    if (!cachedUserData) header.innerHTML = `<b>Total Score Per Play</b>: Failed to fetch`;
+
+    const totalScorePerPlay = Math.round(cachedUserData.stats[modeIndex].tscore / cachedUserData.stats[modeIndex].playcount);
+    header.innerHTML = `<b>Total Score Per Play</b>: ${totalScorePerPlay.toLocaleString()}`;
+}
+
 function setPPV1Data() {
     const target = document.querySelector('.profile-performance');
     if (!target) return;
@@ -126,7 +186,8 @@ function setclearsPercentData() {
 function setPlaystyleContainer() {
 
     const target = document.querySelector('.profile-left');
-    if (!target) return;
+    const playstyle = document.querySelector('.playstyle-container')
+    if (!target || !playstyle) return;
 
     const wrapper = document.createElement('div');
     wrapper.className = 'profile-left-wrapper';
@@ -137,7 +198,6 @@ function setPlaystyleContainer() {
     const leftBottom = document.querySelector('.left-bottom')
     leftBottom.style.margin = '0 10px 0 10px';
 
-    const playstyle = document.querySelector('.playstyle-container')
     playstyle.style.display = 'flex';
     playstyle.style.justifyContent = 'center';
     playstyle.style.alignItems = 'center';
@@ -228,6 +288,8 @@ async function setSettings() {
         profileBox.section.append (
             await createCheckbox('checkboxClears', 'Show clears on profile'),
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
+            await createCheckbox('checkboxHitsPerPlay', 'Show Hits Per Play on profile'),
+            await createCheckbox('checkboxScorePerPlay', 'Show Score Per Play on profile'),
         );
 
         const otherBox = createSection('other-box', 'Other');
