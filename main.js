@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.0
+// @version      1.6.1
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -16,14 +16,24 @@ const general = document.getElementById('general');
 
 let cachedMapData;
 let cachedUserData;
+let versionText;
+let titleText;
 
 (async () => {
     const currentVersion = GM_info.script.version;
-    const oldVersion = await GM.getValue('oldVersion', '0');
+    const oldVersion = await GM.getValue('oldVersion', 0);
 
     if (oldVersion !== currentVersion) {
-        displayPopup(oldVersion, currentVersion);
+        if (!oldVersion) {
+            versionText = currentVersion;
+            titleText = 'Titanic+ Installed';
+        }
+
+        versionText = `${oldVersion} > ${currentVersion}`;
+        titleText = 'Titanic+ Updated';
+
         await GM.setValue('oldVersion', currentVersion);
+        displayPopup();
     }
 
     if (url.includes('/account/settings/')) setSettings();
@@ -57,7 +67,7 @@ let cachedUserData;
     }
 })();
 
-function displayPopup(oldVersion, currentVersion) {
+function displayPopup() {
     const popup = document.createElement('div');
     popup.style.position = 'fixed';
     popup.style.top = '20px';
@@ -69,8 +79,8 @@ function displayPopup(oldVersion, currentVersion) {
     popup.style.borderRadius = '5px';
     popup.style.border = 'solid 2px #5c559c';
     popup.innerHTML = `
-        <b>Titanic+ Updated</b><br>
-        Version: ${oldVersion} > ${currentVersion}<br>
+        <b>${titleText}</b><br>
+        Version: ${versionText}<br>
         Updated: ${new Date().toLocaleDateString()}<br>
     `;
 
@@ -85,7 +95,17 @@ function displayPopup(oldVersion, currentVersion) {
     button.style.cursor = 'pointer';
     button.onclick = () => popup.remove();
 
-    popup.appendChild(button);
+    const link = document.createElement('a');
+    link.href = 'https://github.com/Penguuuuu/titanic-plus/commits/main';
+    link.textContent = 'Notes';
+    link.target = '_blank';
+    link.style.marginTop = '5px';
+    link.style.marginLeft = '5px';
+    link.style.color = '#3843a6';
+    link.onmouseover = () => link.style.textDecoration = 'underline';
+    link.onmouseout = () => link.style.textDecoration = 'none';
+
+    popup.append(button, link);
     document.body.appendChild(popup);
 }
 
