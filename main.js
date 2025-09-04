@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.1
+// @version      1.6.2
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -32,8 +32,8 @@ let titleText;
         versionText = `${oldVersion} > ${currentVersion}`;
         titleText = 'Titanic+ Updated';
 
-        await GM.setValue('oldVersion', currentVersion);
         displayPopup();
+        await GM.setValue('oldVersion', currentVersion);
     }
 
     if (url.includes('/account/settings/')) setSettings();
