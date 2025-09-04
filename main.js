@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.9
+// @version      1.6.0
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -18,7 +18,7 @@ let cachedMapData;
 let cachedUserData;
 
 (async () => {
-    const currentVersion = '1.5.9';
+    const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', '0');
 
     if (oldVersion !== currentVersion) {
