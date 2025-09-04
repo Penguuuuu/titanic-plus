@@ -1,10 +1,8 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.5.8
+// @version      1.5.9
 // @author       Patchouli
-// @match        https://osu.titanic.sh/u/*
-// @match        https://osu.titanic.sh/account/settings/*
-// @include      https://osu.titanic.sh/rankings/*/clears*
+// @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
 // @grant        GM.setValue
 // @grant        GM.getValue
@@ -20,6 +18,14 @@ let cachedMapData;
 let cachedUserData;
 
 (async () => {
+    const currentVersion = '1.5.9';
+    const oldVersion = await GM.getValue('oldVersion', '0');
+
+    if (oldVersion !== currentVersion) {
+        displayPopup(oldVersion, currentVersion);
+        await GM.setValue('oldVersion', currentVersion);
+    }
+
     if (url.includes('/account/settings/')) setSettings();
     const [
         checkboxClears,
@@ -50,6 +56,38 @@ let cachedUserData;
         }
     }
 })();
+
+function displayPopup(oldVersion, currentVersion) {
+    const popup = document.createElement('div');
+    popup.style.position = 'fixed';
+    popup.style.top = '20px';
+    popup.style.right = '20px';
+    popup.style.fontSize = '13.7914px';
+    popup.style.backgroundColor = '#f0ecfa';
+    popup.style.color = '#000000';
+    popup.style.padding = '10px 15px';
+    popup.style.borderRadius = '5px';
+    popup.style.border = 'solid 2px #5c559c';
+    popup.innerHTML = `
+        <b>Titanic+ Updated</b><br>
+        Version: ${oldVersion} > ${currentVersion}<br>
+        Updated: ${new Date().toLocaleDateString()}<br>
+    `;
+
+    const button = document.createElement('button');
+    button.textContent = 'Close';
+    button.style.marginTop = '5px';
+    button.style.padding = '4px 8px';
+    button.style.color = 'white';
+    button.style.backgroundColor = '#5c559c';
+    button.style.borderRadius = '5px';
+    button.style.border = 'none';
+    button.style.cursor = 'pointer';
+    button.onclick = () => popup.remove();
+
+    popup.appendChild(button);
+    document.body.appendChild(popup);
+}
 
 async function getMapData() {
     if (cachedMapData) return cachedMapData;
