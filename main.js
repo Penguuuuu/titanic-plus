@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.4
+// @version      1.6.5
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -66,10 +66,11 @@ let titleText;
         if (checkboxPPV1) setPPV1Data();
         if (checkboxHitsPerPlay) setHitsPerPlayData();
         if (checkboxScorePerPlay) {
-            setTotalScorePerPlay();
-            setRankedScorePerPlay();
+            setTotalScorePerPlayData();
+            setRankedScorePerPlayData();
         }
-        if (checkboxRanksPercent) setRanksPercent();
+        if (checkboxRanksPercent) setRanksPercentData();
+        setLevelBar();
     }
 })();
 
@@ -182,7 +183,7 @@ function setHitsPerPlayData() {
     header.innerHTML = `<b>Hits Per Play</b>: ${hitsPerPlay.toLocaleString()}`;
 }
 
-function setRankedScorePerPlay() {
+function setRankedScorePerPlayData() {
     const target = document.querySelector('h4.profile-stats-element[title^="Ranked Score"]');
     if (!target) return;
 
@@ -199,7 +200,7 @@ function setRankedScorePerPlay() {
     header.innerHTML = `<b>Ranked Score Per Play</b>: ${rankedScorePerPlay.toLocaleString()}`;
 }
 
-function setTotalScorePerPlay() {
+function setTotalScorePerPlayData() {
     const target = document.querySelector('h4.profile-stats-element[title^="Total points"]');
     if (!target) return;
 
@@ -231,7 +232,7 @@ function setPPV1Data() {
     header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
 }
 
-function setRanksPercent() {
+function setRanksPercentData() {
     const target = document.querySelector('.profile-ranks');
     if (!target) return;
 
@@ -291,6 +292,12 @@ function setPlaystyleContainer() {
 
     target.parentNode.insertBefore(wrapper, target);
     wrapper.append(target, playstyle);
+}
+
+async function setLevelBar() {
+    const target = document.querySelector('.level-bar');
+    const hue = await GM.getValue('levelBarHue', 0);
+    target.style.filter = `hue-rotate(${hue}deg)`;
 }
 
 async function setSettings() {
@@ -361,6 +368,60 @@ async function setSettings() {
         return container;
         }
 
+        async function createLevelBar() {
+            const container = document.createElement('div');
+            container.style.marginTop = '30px';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '5px';
+            container.style.alignItems = 'left';
+
+            const title = document.createElement('h2');
+            title.textContent = 'Level Bar Color';
+            title.style.zIndex = 100;
+
+            const levelBar = document.createElement('table');
+            levelBar.style.height = '20px';
+            levelBar.style.width = '300px';
+            levelBar.style.border = 'solid 2px #ffa10d';
+            levelBar.style.borderRadius = '2px';
+            levelBar.style.padding = '0';
+
+            const tr = document.createElement('tr');
+
+            const td1 = document.createElement('td');
+            td1.style.width = '100px';
+            td1.style.backgroundColor = '#eacd5b';
+            td1.style.fontWeight = 'bold';
+            td1.style.boxShadow = '0 0 40px 5px #ffda00';
+            td1.style.borderRight = '2px solid #ffa10d';
+            td1.style.textAlign = 'right';
+            td1.textContent = 'Example';
+
+            const td2 = document.createElement('td');
+            td2.style.backgroundColor = 'white';
+
+            const slider = document.createElement('input');
+            slider.type = 'range';
+            slider.style.width = '300px';
+            slider.min = 0;
+            slider.max = 359;
+            slider.value = await GM.getValue('levelBarHue', 0);
+            levelBar.style.filter = `hue-rotate(${slider.value}deg)`;
+            slider.addEventListener('input', async () => {
+                levelBar.style.filter = `hue-rotate(${slider.value}deg)`;
+                await GM.setValue('levelBarHue', slider.value);
+                await GM.setValue('', false);
+            });
+            slider.style.zIndex = 100;
+            slider.style.boxShadow = 'none';
+
+            tr.append(td1, td2);
+            levelBar.appendChild(tr);
+            container.append(title, levelBar, slider);
+            return container;
+        }
+
         const profileBox = createSection('profile-box', 'Profile');
         profileBox.section.append (
             await createCheckbox('checkboxClears', 'Show clears on profile'),
@@ -373,7 +434,8 @@ async function setSettings() {
         const otherBox = createSection('other-box', 'Other');
         otherBox.section.append (
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
-            await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile')
+            await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile'),
+            await createLevelBar()
         );
 
         target.append(profileBox.box, otherBox.box);
