@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.2
+// @version      1.6.3
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -43,14 +43,16 @@ let titleText;
         checkboxPercent,
         checkboxLeftPanel,
         checkboxHitsPerPlay,
-        checkboxScorePerPlay
+        checkboxScorePerPlay,
+        checkboxRanksPercent
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
         GM.getValue('checkboxLeftPanel', true),
         GM.getValue('checkboxHitsPerPlay', true),
-        GM.getValue('checkboxScorePerPlay', true)
+        GM.getValue('checkboxScorePerPlay', true),
+        GM.getValue('checkboxRanksPercent', true)
     ]);
     if (url.includes('/u/') && checkboxLeftPanel) setPlaystyleContainer();
     if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
@@ -64,6 +66,7 @@ let titleText;
             setTotalScorePerPlay();
             setRankedScorePerPlay();
         }
+        if (checkboxRanksPercent) setRanksPercent();
     }
 })();
 
@@ -216,11 +219,21 @@ function setPPV1Data() {
     const header = document.createElement('div');
     header.className = 'profile-performance';
     target.after(header);
-
-    if (!cachedUserData) header.innerHTML = `<b>PPv1:</b> Failed to fetch`;
+    if (!cachedUserData) header.innerHTML = '<b>PPv1:</b> Failed to fetch';
 
     const ppv1 = cachedUserData.rankings[modeIndex].ppv1;
     header.innerHTML = `<b>PPv1: ${Math.max(0, ppv1.value).toLocaleString()}pp (#${ppv1.global})</b>`;
+}
+
+function setRanksPercent() {
+    const target = document.querySelector('.profile-ranks');
+    if (!target) return;
+
+    const tds = target.querySelectorAll('tbody td:nth-child(even)');
+
+    let total = 0;
+    tds.forEach(rank => { total += Number(rank.textContent) });
+    tds.forEach(td => td.innerHTML += `<br>(${total ? Math.round((Number(td.textContent) / total) * 100) : 0}%)`);
 }
 
 function setclearsPercentData() {
@@ -289,7 +302,7 @@ async function setSettings() {
 
         let target;
 
-        if (url.includes("https://osu.titanic.sh/account/settings/friends")) {
+        if (url.includes('https://osu.titanic.sh/account/settings/friends')) {
             document.querySelector('.friends-heading').remove();
 
             target = document.querySelector('.friends');
@@ -347,7 +360,8 @@ async function setSettings() {
             await createCheckbox('checkboxClears', 'Show clears on profile'),
             await createCheckbox('checkboxPPV1', 'Show PPv1 on profile'),
             await createCheckbox('checkboxHitsPerPlay', 'Show Hits Per Play on profile'),
-            await createCheckbox('checkboxScorePerPlay', 'Show Score Per Play on profile'),
+            await createCheckbox('checkboxScorePerPlay', 'Show Ranked/Total Score Per Play on profile'),
+            await createCheckbox('checkboxRanksPercent', 'Display percentages for ranks')
         );
 
         const otherBox = createSection('other-box', 'Other');
