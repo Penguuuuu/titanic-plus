@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.3
+// @version      1.6.4
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -22,15 +22,18 @@ let titleText;
 (async () => {
     const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', 0);
+    const popupClosed = await GM.getValue("popupClosed", true);
 
-    if (oldVersion !== currentVersion) {
+    if (oldVersion !== currentVersion || !popupClosed) {
+        await GM.setValue('popupClosed', false);
         if (!oldVersion) {
             versionText = currentVersion;
             titleText = 'Titanic+ Installed';
         }
-
-        versionText = `${oldVersion} > ${currentVersion}`;
-        titleText = 'Titanic+ Updated';
+        else {
+            versionText = `${oldVersion} > ${currentVersion}`;
+            titleText = 'Titanic+ Updated';
+        }
 
         displayPopup();
         await GM.setValue('oldVersion', currentVersion);
@@ -96,7 +99,10 @@ function displayPopup() {
     button.style.borderRadius = '5px';
     button.style.border = 'none';
     button.style.cursor = 'pointer';
-    button.onclick = () => popup.remove();
+    button.onclick = async () => {
+        await GM.setValue('popupClosed', true);
+        popup.remove();
+    };
 
     const link = document.createElement('a');
     link.href = 'https://github.com/Penguuuuu/titanic-plus/commits/main';
