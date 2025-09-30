@@ -17,19 +17,20 @@ Then create a new tampermonkey script, paste, and save the script
 ---    
 
 ### Features
-- Display Completion stat on profiles
+- Display clears stat on profiles
 - Display ranked/total score rank on profiles
-- Display more PP values (PPv1, RX, AP) on profiles
+- Display ranked/total score per play on profiles
+- Display PPv1 on profiles
 - Display percent values on the clears page
-- Ability to configure each setting on the settings page
+- Ability to hue shift the level bar
+- Display percentage of ranks earned for each rank
 
-<img width="859" height="312" alt="image" src="https://github.com/user-attachments/assets/8d82def8-bebe-4619-b4c6-d3fb91bb561d" />
-
-![](https://github.com/user-attachments/assets/9252b26e-bd2f-40a5-a9fc-1cc9e5c9d8dc)
-<img width="234" height="41" alt="image" src="https://github.com/user-attachments/assets/6010c7b0-5e04-4f0f-adf2-b2438e0a8a8f" />
-![](https://github.com/user-attachments/assets/0e3b49fb-d772-466b-be0b-d0fde9887bc6)
-<img width="225" height="41" alt="image" src="https://github.com/user-attachments/assets/fb59ff6d-b847-4748-9c68-202375f6c554" />
-<img width="632" height="96" alt="image" src="https://github.com/user-attachments/assets/1a7dac6b-e671-4bdf-868c-1ee28ffbc281" />
+<img width="397" height="130" alt="image" src="https://github.com/user-attachments/assets/7895e78c-ec8e-4a4e-8c8a-93f297da78fb" /><br>
+<img width="261" height="31" alt="image" src="https://github.com/user-attachments/assets/7fd83c22-5049-44e9-b5ee-c09952d360ac" />
+<img width="227" height="31" alt="image" src="https://github.com/user-attachments/assets/27e62c53-57fe-44eb-b981-e464e8810c3f" />
+<img width="220" height="37" alt="image" src="https://github.com/user-attachments/assets/e067deaa-7c5b-481e-96bd-8f4c35b72dc1" />
+<img width="188" height="34" alt="image" src="https://github.com/user-attachments/assets/a2fddf3e-e603-469a-8c28-501a16b6effe" />
+<img width="859" height="465" alt="image" src="https://github.com/user-attachments/assets/3181376b-4b7f-4bf6-9394-f0f8c9b4164d" />
 
 ---
 
