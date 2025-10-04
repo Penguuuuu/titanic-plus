@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.6
+// @version      1.6.7
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -38,7 +38,6 @@ let titleText;
         displayPopup();
         await GM.setValue('oldVersion', currentVersion);
     }
-
     if (url.includes('/account/settings/')) setSettings();
     const [
         checkboxClears,
@@ -47,7 +46,8 @@ let titleText;
         checkboxLeftPanel,
         checkboxHitsPerPlay,
         checkboxScorePerPlay,
-        checkboxRanksPercent
+        checkboxRanksPercent,
+        checkboxLogoPulse
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -55,8 +55,10 @@ let titleText;
         GM.getValue('checkboxLeftPanel', true),
         GM.getValue('checkboxHitsPerPlay', true),
         GM.getValue('checkboxScorePerPlay', true),
-        GM.getValue('checkboxRanksPercent', true)
+        GM.getValue('checkboxRanksPercent', true),
+        GM.getValue('checkboxLogoPulse', true)
     ]);
+    if (checkboxLogoPulse) logoPulse();
     if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
     if (checkboxClears || checkboxPPV1) await getUserData();
     if (checkboxClears) await getMapData();
@@ -301,6 +303,44 @@ async function setLevelBar() {
     target.style.filter = `hue-rotate(${hue}deg)`;
 }
 
+function logoPulse() {
+    const target = document.querySelector('a[aria-label="Home"]');
+    const logo = document.querySelector('.logo');
+    if (!target  || !logo) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0% { transform: scale(1) rotate(-2.5deg); opacity: 1; }
+            1% { transform: scale(1.05) rotate(-2.5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-2.5deg); opacity: 1; }
+        }
+        .pulse {
+            animation: pulse .8s infinite ease-out;
+            display: inline-block;
+            z-index: 100;
+        }
+
+        @keyframes shadowPulse {
+            0% { transform: scale(1) rotate(-2.5deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(-2.5deg); opacity: 0; }
+            100% { opacity: 0; }
+        }
+        .shadowPulse {
+            animation: shadowPulse .8s infinite ease-out;
+            display: inline-block;
+            z-index: 99;
+        }
+    `;
+    document.head.appendChild(style);
+
+    const logoShadow = logo.cloneNode(true);
+    logoShadow.classList.add('shadowPulse');
+    logo.classList.add('pulse');
+
+    target.appendChild(logoShadow)
+}
+
 async function setSettings() {
     const target = document.querySelector('.sidebar');
     if (!target) return;
@@ -357,11 +397,27 @@ async function setSettings() {
         checkbox.id = id;
         checkbox.checked = await GM.getValue(id, true);
 
-        checkbox.addEventListener('change', () => GM.setValue(id, checkbox.checked));
+        checkbox.addEventListener('change', async () => {
+            await GM.setValue(id, checkbox.checked);
+
+            if (id === 'checkboxLogoPulse') {
+                const logo = document.querySelector('.logo');
+                const logoShadow = document.querySelector('.shadowPulse');
+
+                if (checkbox.checked && !logo.classList.contains('pulse')) logoPulse();
+                else {
+                    logo.classList.remove('pulse');
+                    logoShadow.remove();
+                }
+            }
+        });
 
         const label = document.createElement('label');
         label.style.color = '#536482';
         label.textContent = ` ${text}`;
+
+        if (id === 'checkboxLogoPulse') label.title = "Inspired by osu's 2007 pulsing logo";
+        if (id === 'checkboxLeftPanel') label.title = "Inspired by osu's 2014 left panel design";
 
         container.append(checkbox, label);
         return container;
@@ -432,6 +488,7 @@ async function setSettings() {
 
         const otherBox = createSection('other-box', 'Other');
         otherBox.section.append (
+            await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile'),
             await createLevelBar()
