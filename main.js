@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.5
+// @version      1.6.6
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -22,7 +22,7 @@ let titleText;
 (async () => {
     const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', 0);
-    const popupClosed = await GM.getValue("popupClosed", true);
+    const popupClosed = await GM.getValue('popupClosed', true);
 
     if (oldVersion !== currentVersion || !popupClosed) {
         await GM.setValue('popupClosed', false);
@@ -57,7 +57,6 @@ let titleText;
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true)
     ]);
-    if (url.includes('/u/') && checkboxLeftPanel) setPlaystyleContainer();
     if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
     if (checkboxClears || checkboxPPV1) await getUserData();
     if (checkboxClears) await getMapData();
@@ -70,6 +69,7 @@ let titleText;
             setRankedScorePerPlayData();
         }
         if (checkboxRanksPercent) setRanksPercentData();
+        if (checkboxLeftPanel) setPlaystyleContainer();
         setLevelBar();
     }
 })();
@@ -131,19 +131,19 @@ async function getMapData() {
         if (modeIndex !== 0) return cachedMapData = modeData.count_qualified + modeData.count_approved + modeData.count_ranked + modeData.count_loved + standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
         else return cachedMapData = standardData.count_qualified + standardData.count_approved + standardData.count_ranked + standardData.count_loved;
     }
-    catch {return cachedMapData};
+    catch { return cachedMapData };
 }
 
 async function getUserData() {
     if (cachedUserData) return cachedUserData;
 
     try {
-        const userId = Number(window.location.pathname.match(/\/u\/(\d+)/)?.[1]);
+        const userId = Number(window.location.pathname.split('/u/')[1]);
         const response = await fetch(`https://api.titanic.sh/users/${userId}`);
 
         return cachedUserData = await response.json();
     }
-    catch {return cachedUserData};
+    catch { return cachedUserData };
 }
 
 function setClearsData() {
@@ -167,7 +167,7 @@ function setClearsData() {
 }
 
 function setHitsPerPlayData() {
-    const target = document.querySelector('.profile-stats-element[title="Total notes hit."]');
+    const target = document.querySelector(`.profile-stats-element[title='Total notes hit.']`);
     if (!target) return;
 
     general.style.height = `${parseInt(general.style.height) + 35}px`;
@@ -184,7 +184,7 @@ function setHitsPerPlayData() {
 }
 
 function setRankedScorePerPlayData() {
-    const target = document.querySelector('h4.profile-stats-element[title^="Ranked Score"]');
+    const target = document.querySelector(`h4.profile-stats-element[title^='Ranked Score']`);
     if (!target) return;
 
     general.style.height = `${parseInt(general.style.height) + 35}px`;
@@ -201,7 +201,7 @@ function setRankedScorePerPlayData() {
 }
 
 function setTotalScorePerPlayData() {
-    const target = document.querySelector('h4.profile-stats-element[title^="Total points"]');
+    const target = document.querySelector(`h4.profile-stats-element[title^='Total points']`);
     if (!target) return;
 
     general.style.height = `${parseInt(general.style.height) + 35}px`;
@@ -262,7 +262,6 @@ function setclearsPercentData() {
 }
 
 function setPlaystyleContainer() {
-
     const target = document.querySelector('.profile-left');
     const playstyle = document.querySelector('.playstyle-container')
     if (!target || !playstyle) return;
@@ -296,6 +295,8 @@ function setPlaystyleContainer() {
 
 async function setLevelBar() {
     const target = document.querySelector('.level-bar');
+    if (!target) return;
+
     const hue = await GM.getValue('levelBarHue', 0);
     target.style.filter = `hue-rotate(${hue}deg)`;
 }
@@ -307,14 +308,13 @@ async function setSettings() {
     const sidebar = document.createElement('div');
     sidebar.className = 'sidebar-section settings-panel';
     sidebar.innerHTML = '<a>Titanic+</a>';
-    target.append(sidebar);
+    target.appendChild(sidebar);
 
     sidebar.addEventListener('click', async () => {
         document.querySelector('.sidebar-section.selected-sidebar').classList.remove('selected-sidebar');
         sidebar.classList.add('selected-sidebar');
 
         let target;
-
         if (url.includes('https://osu.titanic.sh/account/settings/friends')) {
             document.querySelector('.friends-heading').remove();
 
@@ -328,10 +328,9 @@ async function setSettings() {
         }
 
         let h1 = document.querySelector('h1');
-
         if (!h1) {
             h1 = document.createElement('h1');
-            target.append(h1);
+            target.appendChild(h1);
         }
 
         h1.textContent = 'Titanic+';
@@ -347,7 +346,7 @@ async function setSettings() {
             section.className = 'section';
 
             box.append(heading, section);
-            return {box, section};
+            return { box, section };
         }
 
         async function createCheckbox(id, text) {
