@@ -24,13 +24,14 @@ Then create a new tampermonkey script, paste, and save the script
 - Display percent values on the clears page
 - Ability to hue shift the level bar
 - Display percentage of ranks earned for each rank
-
+- Add a custom wallpaper
+  
 <img width="397" height="130" alt="image" src="https://github.com/user-attachments/assets/7895e78c-ec8e-4a4e-8c8a-93f297da78fb" /><br>
 <img width="261" height="31" alt="image" src="https://github.com/user-attachments/assets/7fd83c22-5049-44e9-b5ee-c09952d360ac" />
 <img width="227" height="31" alt="image" src="https://github.com/user-attachments/assets/27e62c53-57fe-44eb-b981-e464e8810c3f" />
 <img width="220" height="37" alt="image" src="https://github.com/user-attachments/assets/e067deaa-7c5b-481e-96bd-8f4c35b72dc1" />
 <img width="188" height="34" alt="image" src="https://github.com/user-attachments/assets/a2fddf3e-e603-469a-8c28-501a16b6effe" />
-<img width="859" height="465" alt="image" src="https://github.com/user-attachments/assets/3181376b-4b7f-4bf6-9394-f0f8c9b4164d" />
+<img width="858" height="615" alt="image" src="https://github.com/user-attachments/assets/51402133-45ea-4cbd-ad2e-dd7c0511917a" />
 
 ---
 
