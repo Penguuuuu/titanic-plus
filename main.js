@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.7
+// @version      1.6.8
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -38,6 +38,9 @@ let titleText;
         displayPopup();
         await GM.setValue('oldVersion', currentVersion);
     }
+
+    setWallpaper();
+
     if (url.includes('/account/settings/')) setSettings();
     const [
         checkboxClears,
@@ -341,6 +344,27 @@ function logoPulse() {
     target.appendChild(logoShadow)
 }
 
+async function setWallpaper() {
+    const checkbox = await GM.getValue('checkboxWallpaper', false);
+    const url = await GM.getValue('wallpaperUrl', '');
+    const repeat = await GM.getValue('checkboxRepeat', false);
+    const attachment = await GM.getValue('wallpaperAttachment', 'scroll');
+    const size = await GM.getValue('wallpaperSize', 'auto');
+
+    if (checkbox && url) {
+        document.documentElement.style.backgroundImage = `url('${url}')`;
+        document.documentElement.style.backgroundRepeat = repeat ? 'repeat' : 'no-repeat';
+        document.documentElement.style.backgroundAttachment = attachment;
+        document.documentElement.style.backgroundSize = size;
+    }
+    else {
+        document.documentElement.style.backgroundImage = '';
+        document.documentElement.style.backgroundRepeat = '';
+        document.documentElement.style.backgroundAttachment = '';
+        document.documentElement.style.backgroundSize = '';
+    }
+}
+
 async function setSettings() {
     const target = document.querySelector('.sidebar');
     if (!target) return;
@@ -389,17 +413,18 @@ async function setSettings() {
             return { box, section };
         }
 
-        async function createCheckbox(id, text) {
+        async function createCheckbox(id, text, defaultValue = true) {
         const container = document.createElement('div');
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = id;
-        checkbox.checked = await GM.getValue(id, true);
+        checkbox.checked = await GM.getValue(id, defaultValue);
 
         checkbox.addEventListener('change', async () => {
             await GM.setValue(id, checkbox.checked);
 
+            if (id === 'checkboxWallpaper' || id === 'checkboxRepeat') setWallpaper();
             if (id === 'checkboxLogoPulse') {
                 const logo = document.querySelector('.logo');
                 const logoShadow = document.querySelector('.shadowPulse');
@@ -477,6 +502,75 @@ async function setSettings() {
             return container;
         }
 
+        async function createWallpapersection() {
+            const container = document.createElement('div');
+            container.style.marginTop = '30px';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '5px';
+
+            const title = document.createElement('h2');
+            title.textContent = 'Wallpaper';
+
+            const checkboxWallpaper = await createCheckbox('checkboxWallpaper', 'Display wallpaper', false);
+
+            const inputUrl = document.createElement('input');
+            inputUrl.type = 'text';
+            inputUrl.style.width = '300px';
+            inputUrl.id = 'inputWallpaper';
+            inputUrl.value = await GM.getValue('wallpaperUrl', '');
+            inputUrl.addEventListener('input', async () => {
+                await GM.setValue('wallpaperUrl', inputUrl.value);
+                setWallpaper();
+            });
+
+            const checkboxRepeat = await createCheckbox('checkboxRepeat', 'Repeat', false);
+
+            const attachmentDropdown = await createDropdown({
+                text: 'Attachment:',
+                options: ['fixed', 'scroll'],
+                setValue: 'wallpaperAttachment',
+                defaultValue: 'fixed'
+            });
+
+            const sizeDropdown = await createDropdown({
+                text: 'Size:',
+                options: ['auto', 'cover', 'contain'],
+                setValue: 'wallpaperSize',
+                defaultValue: 'auto'
+            });
+
+            async function createDropdown({ text, options, id, defaultValue }) {
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.alignItems = 'center';
+                container.style.gap = '5px';
+
+                const label = document.createElement('label');
+                label.style.color = '#536482';
+                label.textContent = text;
+
+                const select = document.createElement('select');
+                options.forEach(o => {
+                    const option = document.createElement('option');
+                    option.value = o;
+                    option.textContent = o;
+                    select.append(option);
+                });
+                select.value = await GM.getValue(id, defaultValue);
+                select.addEventListener('change', async () => {
+                    await GM.setValue(id, select.value);
+                    setWallpaper();
+                });
+
+                container.append(label, select);
+                return { container, select };
+            }
+
+            container.append(title, checkboxWallpaper, inputUrl, checkboxRepeat, attachmentDropdown.container, sizeDropdown.container);
+            return container;
+        }
+
         const profileBox = createSection('profile-box', 'Profile');
         profileBox.section.append (
             await createCheckbox('checkboxClears', 'Show clears on profile'),
@@ -491,7 +585,8 @@ async function setSettings() {
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile'),
-            await createLevelBar()
+            await createLevelBar(),
+            await createWallpapersection()
         );
 
         target.append(profileBox.box, otherBox.box);
