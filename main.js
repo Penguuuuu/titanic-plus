@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.8
+// @version      1.6.9
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -529,14 +529,14 @@ async function setSettings() {
             const attachmentDropdown = await createDropdown({
                 text: 'Attachment:',
                 options: ['fixed', 'scroll'],
-                setValue: 'wallpaperAttachment',
+                id: 'wallpaperAttachment',
                 defaultValue: 'fixed'
             });
 
             const sizeDropdown = await createDropdown({
                 text: 'Size:',
                 options: ['auto', 'cover', 'contain'],
-                setValue: 'wallpaperSize',
+                id: 'wallpaperSize',
                 defaultValue: 'auto'
             });
 
