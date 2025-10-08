@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.6.9
+// @version      1.7.0
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -399,9 +399,9 @@ async function setSettings() {
 
         h1.textContent = 'Titanic+';
 
-        function createSection(id, text) {
+        function createSection(gmId, text) {
             const box = document.createElement('div');
-            box.id = id;
+            box.id = gmId;
 
             const heading = document.createElement('h2');
             heading.textContent = text;
@@ -413,19 +413,19 @@ async function setSettings() {
             return { box, section };
         }
 
-        async function createCheckbox(id, text, defaultValue = true) {
+        async function createCheckbox(gmId, text, defaultValue = true) {
         const container = document.createElement('div');
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = id;
-        checkbox.checked = await GM.getValue(id, defaultValue);
+        checkbox.id = gmId;
+        checkbox.checked = await GM.getValue(gmId, defaultValue);
 
         checkbox.addEventListener('change', async () => {
-            await GM.setValue(id, checkbox.checked);
+            await GM.setValue(gmId, checkbox.checked);
 
-            if (id === 'checkboxWallpaper' || id === 'checkboxRepeat') setWallpaper();
-            if (id === 'checkboxLogoPulse') {
+            if (gmId === 'checkboxWallpaper' || gmId === 'checkboxRepeat') setWallpaper();
+            if (gmId === 'checkboxLogoPulse') {
                 const logo = document.querySelector('.logo');
                 const logoShadow = document.querySelector('.shadowPulse');
 
@@ -441,11 +441,38 @@ async function setSettings() {
         label.style.color = '#536482';
         label.textContent = ` ${text}`;
 
-        if (id === 'checkboxLogoPulse') label.title = "Inspired by osu's 2007 pulsing logo";
-        if (id === 'checkboxLeftPanel') label.title = "Inspired by osu's 2014 left panel design";
+        if (gmId === 'checkboxLogoPulse') label.title = "Inspired by osu's 2007 pulsing logo";
+        if (gmId === 'checkboxLeftPanel') label.title = "Inspired by osu's 2014 left panel design";
 
         container.append(checkbox, label);
         return container;
+        }
+
+        async function createDropdown({ text, options, gmId, defaultValue }) {
+            const container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.alignItems = 'center';
+            container.style.gap = '5px';
+
+            const label = document.createElement('label');
+            label.style.color = '#536482';
+            label.textContent = text;
+
+            const select = document.createElement('select');
+            options.forEach(o => {
+                const option = document.createElement('option');
+                option.value = o;
+                option.textContent = o;
+                select.append(option);
+            });
+            select.value = await GM.getValue(gmId, defaultValue);
+            select.addEventListener('change', async () => {
+                await GM.setValue(gmId, select.value);
+                setWallpaper();
+            });
+
+            container.append(label, select);
+            return container;
         }
 
         async function createLevelBar() {
@@ -529,45 +556,18 @@ async function setSettings() {
             const attachmentDropdown = await createDropdown({
                 text: 'Attachment:',
                 options: ['fixed', 'scroll'],
-                id: 'wallpaperAttachment',
+                gmId: 'wallpaperAttachment',
                 defaultValue: 'fixed'
             });
 
             const sizeDropdown = await createDropdown({
                 text: 'Size:',
                 options: ['auto', 'cover', 'contain'],
-                id: 'wallpaperSize',
+                gmId: 'wallpaperSize',
                 defaultValue: 'auto'
             });
 
-            async function createDropdown({ text, options, id, defaultValue }) {
-                const container = document.createElement('div');
-                container.style.display = 'flex';
-                container.style.alignItems = 'center';
-                container.style.gap = '5px';
-
-                const label = document.createElement('label');
-                label.style.color = '#536482';
-                label.textContent = text;
-
-                const select = document.createElement('select');
-                options.forEach(o => {
-                    const option = document.createElement('option');
-                    option.value = o;
-                    option.textContent = o;
-                    select.append(option);
-                });
-                select.value = await GM.getValue(id, defaultValue);
-                select.addEventListener('change', async () => {
-                    await GM.setValue(id, select.value);
-                    setWallpaper();
-                });
-
-                container.append(label, select);
-                return { container, select };
-            }
-
-            container.append(title, checkboxWallpaper, inputUrl, checkboxRepeat, attachmentDropdown.container, sizeDropdown.container);
+            container.append(title, checkboxWallpaper, inputUrl, attachmentDropdown, sizeDropdown, checkboxRepeat);
             return container;
         }
 
