@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.0
+// @version      1.7.1
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -69,10 +69,7 @@ let titleText;
         if (checkboxClears) setClearsData();
         if (checkboxPPV1) setPPV1Data();
         if (checkboxHitsPerPlay) setHitsPerPlayData();
-        if (checkboxScorePerPlay) {
-            setTotalScorePerPlayData();
-            setRankedScorePerPlayData();
-        }
+        if (checkboxScorePerPlay) setScorePerPlayData();
         if (checkboxRanksPercent) setRanksPercentData();
         if (checkboxLeftPanel) setPlaystyleContainer();
         setLevelBar();
@@ -81,6 +78,7 @@ let titleText;
 
 function displayPopup() {
     const popup = document.createElement('div');
+    popup.style.maxWidth = '400px';
     popup.style.position = 'fixed';
     popup.style.top = '20px';
     popup.style.right = '20px';
@@ -92,8 +90,13 @@ function displayPopup() {
     popup.style.border = 'solid 2px #5c559c';
     popup.innerHTML = `
         <b>${titleText}</b><br>
-        Version: ${versionText}<br>
-        Updated: ${new Date().toLocaleDateString()}<br>
+        <b>Version:</b> ${versionText}<br>
+        <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
+        <b>Notes:</b><br>
+        <ul style="margin-left: 12px;">
+            <li>- Added Notes to the update popup</li>
+            <li>- Simplified score per play</li>
+        </ul>
     `;
 
     const button = document.createElement('button');
@@ -105,6 +108,8 @@ function displayPopup() {
     button.style.borderRadius = '5px';
     button.style.border = 'none';
     button.style.cursor = 'pointer';
+    button.onmouseover = () => button.style.textDecoration = 'underline';
+    button.onmouseout = () => button.style.textDecoration = 'none';
     button.onclick = async () => {
         await GM.setValue('popupClosed', true);
         popup.remove();
@@ -112,7 +117,7 @@ function displayPopup() {
 
     const link = document.createElement('a');
     link.href = 'https://github.com/Penguuuuu/titanic-plus/commits/main';
-    link.textContent = 'Notes';
+    link.textContent = 'Source';
     link.target = '_blank';
     link.style.marginTop = '5px';
     link.style.marginLeft = '5px';
@@ -188,38 +193,37 @@ function setHitsPerPlayData() {
     header.innerHTML = `<b>Hits Per Play</b>: ${hitsPerPlay.toLocaleString()}`;
 }
 
-function setRankedScorePerPlayData() {
-    const target = document.querySelector(`h4.profile-stats-element[title^='Ranked Score']`);
-    if (!target) return;
+function setScorePerPlayData() {
+    const stats = [
+        {
+            targetName: 'Ranked Score',
+            name: 'Ranked',
+            apiName: 'rscore',
+        },
+        {
+            targetName: 'Total points',
+            name: 'Total',
+            apiName: 'tscore',
+        },
+    ];
 
-    general.style.height = `${parseInt(general.style.height) + 35}px`;
+    stats.forEach(({ name, targetName, apiName }) => {
+        const target = document.querySelector(`h4.profile-stats-element[title^='${targetName}']`);
+        if (!target) return;
 
-    const header = document.createElement('h4');
-    header.className = 'profile-stats-element';
-    header.title = 'The average ranked score achieved per play';
-    target.after(document.createElement('br'), header);
+        general.style.height = `${parseInt(general.style.height) + 35}px`;
 
-    if (!cachedUserData) header.innerHTML = `<b>Ranked Score Per Play</b>: Failed to fetch`;
+        const header = document.createElement('h4');
+        header.className = 'profile-stats-element';
+        header.title = `Average ${name.toLowerCase()} score achieved per play`;
+        target.after(document.createElement('br'), header);
 
-    const rankedScorePerPlay = Math.round(cachedUserData.stats[modeIndex].rscore / cachedUserData.stats[modeIndex].playcount);
-    header.innerHTML = `<b>Ranked Score Per Play</b>: ${rankedScorePerPlay.toLocaleString()}`;
-}
-
-function setTotalScorePerPlayData() {
-    const target = document.querySelector(`h4.profile-stats-element[title^='Total points']`);
-    if (!target) return;
-
-    general.style.height = `${parseInt(general.style.height) + 35}px`;
-
-    const header = document.createElement('h4');
-    header.className = 'profile-stats-element';
-    header.title = 'The average ranked score achieved per play';
-    target.after(document.createElement('br'), header);
-
-    if (!cachedUserData) header.innerHTML = `<b>Total Score Per Play</b>: Failed to fetch`;
-
-    const totalScorePerPlay = Math.round(cachedUserData.stats[modeIndex].tscore / cachedUserData.stats[modeIndex].playcount);
-    header.innerHTML = `<b>Total Score Per Play</b>: ${totalScorePerPlay.toLocaleString()}`;
+        if (!cachedUserData) return header.innerHTML = `<b>${name} Score Per Play</b>: Failed to fetch`;
+        else {
+            const scorePerPlay = Math.round(cachedUserData.stats[modeIndex][apiName] / cachedUserData.stats[modeIndex].playcount);
+            header.innerHTML = `<b>${name} Score Per Play</b>: ${scorePerPlay.toLocaleString()}`;
+        }
+    });
 }
 
 function setPPV1Data() {
