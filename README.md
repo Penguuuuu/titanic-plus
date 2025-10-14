@@ -1,20 +1,20 @@
 ## How to Use
 
-### 1. Install Tampermonkey  
-Install Tampermonkey from one of these links:    
+### 1. Install Tampermonkey
+Install Tampermonkey from one of these links:
 [**Firefox**](https://www.tampermonkey.net/index.php?browser=firefox) | [**Chrome**](https://www.tampermonkey.net/index.php?browser=chrome)
 
 ---
 
-### 2. Install the Script 
-Visit the following URL and copy **all of the code**:  
+### 2. Install the Script
+Visit the following URL and copy **all of the code**:
 [https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js](https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js)
 
 > If Tampermonkey prompts you to install the script automatically, you can skip the manual step below.
 
 Then create a new tampermonkey script, paste, and save the script
 
----    
+---
 
 ### Features
 - Display clears stat on profiles
@@ -25,7 +25,8 @@ Then create a new tampermonkey script, paste, and save the script
 - Ability to hue shift the level bar
 - Display percentage of ranks earned for each rank
 - Add a custom wallpaper
-  
+- Sort country rankings by ranked score
+
 <img width="397" height="130" alt="image" src="https://github.com/user-attachments/assets/7895e78c-ec8e-4a4e-8c8a-93f297da78fb" /><br>
 <img width="261" height="31" alt="image" src="https://github.com/user-attachments/assets/7fd83c22-5049-44e9-b5ee-c09952d360ac" />
 <img width="227" height="31" alt="image" src="https://github.com/user-attachments/assets/27e62c53-57fe-44eb-b981-e464e8810c3f" />

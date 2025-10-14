@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.1
+// @version      1.7.2
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -62,10 +62,11 @@ let titleText;
         GM.getValue('checkboxLogoPulse', true)
     ]);
     if (checkboxLogoPulse) logoPulse();
-    if (url.includes('/rankings/osu/clears') && checkboxPercent) setclearsPercentData();
-    if (checkboxClears || checkboxPPV1) await getUserData();
-    if (checkboxClears) await getMapData();
+    if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
+    if (url.includes('/country')) setCountryData();
     if (url.includes('/u/')) {
+        if (checkboxClears) await getMapData();
+        if (checkboxClears || checkboxPPV1) await getUserData();
         if (checkboxClears) setClearsData();
         if (checkboxPPV1) setPPV1Data();
         if (checkboxHitsPerPlay) setHitsPerPlayData();
@@ -94,8 +95,9 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px;">
-            <li>- Added Notes to the update popup</li>
-            <li>- Simplified score per play</li>
+            <li>- Added ranked score sorting on country rankings page</li>
+            <li>- Fixed percentage for clears ranking page not working for all modes</li>
+            <li>- Misc cleanup</li>
         </ul>
     `;
 
@@ -154,6 +156,65 @@ async function getUserData() {
         return cachedUserData = await response.json();
     }
     catch { return cachedUserData };
+}
+
+async function setCountryData() {
+    const centered = document.querySelector('.centered');
+
+    const checkboxContainer = await createCheckbox('checkboxCountryRankedScore', `Ranked Score Sorting`, false);
+    checkboxContainer.style.padding = '5px';
+
+    const label = checkboxContainer.querySelector('label');
+    label.style.color = '#000';
+    label.style.fontSize = '80%';
+
+    centered.insertAdjacentElement('afterend', checkboxContainer);
+
+    const checkbox = checkboxContainer.querySelector('input[type="checkbox"]');
+    if (checkbox.checked) await setTable('total_rscore');
+    checkbox.addEventListener('change', async () => { await setTable(checkbox.checked ? 'total_rscore' : 'total_performance') });
+
+    async function setTable(sort) {
+        const target = document.querySelector('.country-listing tbody');
+        target.innerHTML = '';
+
+        const modeSplit = window.location.pathname.split('/');
+        const mode = modeSplit[2];
+
+        let data;
+        try {
+            const response = await fetch(`https://api.titanic.sh/rankings/country/${mode}`);
+            data = await response.json();
+        }
+        catch { return };
+
+        const pageSplit = url.split('?page=')[1];
+        const pageNumber = pageSplit ? Number(pageSplit) : 1;
+
+        data.sort((a, b) => b.stats[sort] - a.stats[sort]);
+        data = data.slice((pageNumber - 1) * 50, pageNumber * 50);
+
+        data.forEach((country, index) => {
+            const rank = (pageNumber - 1) * 50 + index + 1;
+
+            const row = document.createElement('tr');
+            row.style.backgroundColor = index % 2 ? '#e7e4fc' : '#dad7fb';
+            row.innerHTML = `
+                <td><b>#${rank}</b></td>
+                <td>
+                    <img src="/images/flags/${country.country_acronym}.gif" class="flag" alt="${country.country_acronym} Flag">
+                    <a href="/rankings/osu/performance?country=${country.country_acronym}">${country.country_name}</a>
+                </td>
+                <td>${country.stats.total_users.toLocaleString()}</td>
+                <td>${country.stats.total_rscore.toLocaleString()}</td>
+                <td>${country.stats.total_tscore.toLocaleString()}</td>
+                <td><b>${Math.round(country.stats.total_performance).toLocaleString()}pp</b></td>
+                <td>${Math.round(country.stats.average_performance).toLocaleString()}pp</td>
+            `;
+
+            target.appendChild(row);
+        });
+    }
 }
 
 function setClearsData() {
@@ -417,68 +478,6 @@ async function setSettings() {
             return { box, section };
         }
 
-        async function createCheckbox(gmId, text, defaultValue = true) {
-        const container = document.createElement('div');
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = gmId;
-        checkbox.checked = await GM.getValue(gmId, defaultValue);
-
-        checkbox.addEventListener('change', async () => {
-            await GM.setValue(gmId, checkbox.checked);
-
-            if (gmId === 'checkboxWallpaper' || gmId === 'checkboxRepeat') setWallpaper();
-            if (gmId === 'checkboxLogoPulse') {
-                const logo = document.querySelector('.logo');
-                const logoShadow = document.querySelector('.shadowPulse');
-
-                if (checkbox.checked && !logo.classList.contains('pulse')) logoPulse();
-                else {
-                    logo.classList.remove('pulse');
-                    logoShadow.remove();
-                }
-            }
-        });
-
-        const label = document.createElement('label');
-        label.style.color = '#536482';
-        label.textContent = ` ${text}`;
-
-        if (gmId === 'checkboxLogoPulse') label.title = "Inspired by osu's 2007 pulsing logo";
-        if (gmId === 'checkboxLeftPanel') label.title = "Inspired by osu's 2014 left panel design";
-
-        container.append(checkbox, label);
-        return container;
-        }
-
-        async function createDropdown({ text, options, gmId, defaultValue }) {
-            const container = document.createElement('div');
-            container.style.display = 'flex';
-            container.style.alignItems = 'center';
-            container.style.gap = '5px';
-
-            const label = document.createElement('label');
-            label.style.color = '#536482';
-            label.textContent = text;
-
-            const select = document.createElement('select');
-            options.forEach(o => {
-                const option = document.createElement('option');
-                option.value = o;
-                option.textContent = o;
-                select.append(option);
-            });
-            select.value = await GM.getValue(gmId, defaultValue);
-            select.addEventListener('change', async () => {
-                await GM.setValue(gmId, select.value);
-                setWallpaper();
-            });
-
-            container.append(label, select);
-            return container;
-        }
-
         async function createLevelBar() {
             const container = document.createElement('div');
             container.style.marginTop = '30px';
@@ -596,3 +595,69 @@ async function setSettings() {
         target.append(profileBox.box, otherBox.box);
     });
 }
+
+async function createCheckbox(gmId, text, defaultValue = true) {
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.gap = '5px';
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = gmId;
+    checkbox.checked = await GM.getValue(gmId, defaultValue);
+
+    checkbox.addEventListener('change', async () => {
+        await GM.setValue(gmId, checkbox.checked);
+
+        if (gmId === 'checkboxWallpaper' || gmId === 'checkboxRepeat') setWallpaper();
+        if (gmId === 'checkboxLogoPulse') {
+            const logo = document.querySelector('.logo');
+            const logoShadow = document.querySelector('.shadowPulse');
+
+            if (checkbox.checked && !logo.classList.contains('pulse')) logoPulse();
+            else {
+                logo.classList.remove('pulse');
+                logoShadow.remove();
+            }
+        }
+    });
+
+    const label = document.createElement('label');
+    label.style.color = '#536482';
+    label.textContent = ` ${text}`;
+
+    if (gmId === 'checkboxLogoPulse') label.title = "Inspired by osu's 2007 pulsing logo";
+    if (gmId === 'checkboxLeftPanel') label.title = "Inspired by osu's 2014 left panel design";
+
+    container.append(checkbox, label);
+    return container;
+}
+
+async function createDropdown({ text, options, gmId, defaultValue }) {
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.gap = '5px';
+
+    const label = document.createElement('label');
+    label.style.color = '#536482';
+    label.textContent = text;
+
+    const select = document.createElement('select');
+    options.forEach(o => {
+        const option = document.createElement('option');
+        option.value = o;
+        option.textContent = o;
+        select.append(option);
+    });
+    select.value = await GM.getValue(gmId, defaultValue);
+    select.addEventListener('change', async () => {
+        await GM.setValue(gmId, select.value);
+        setWallpaper();
+    });
+
+    container.append(label, select);
+    return container;
+}
+
