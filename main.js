@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.2
+// @version      1.7.3
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -206,9 +206,9 @@ async function setCountryData() {
                     <a href="/rankings/osu/performance?country=${country.country_acronym}">${country.country_name}</a>
                 </td>
                 <td>${country.stats.total_users.toLocaleString()}</td>
-                <td>${country.stats.total_rscore.toLocaleString()}</td>
+                <td ${sort === 'total_rscore' ? 'style="font-weight:bold;"' : ''}>${country.stats.total_rscore.toLocaleString()}</td>
                 <td>${country.stats.total_tscore.toLocaleString()}</td>
-                <td><b>${Math.round(country.stats.total_performance).toLocaleString()}pp</b></td>
+                <td ${sort === 'total_performance' ? 'style="font-weight:bold;"' : ''}>${Math.round(country.stats.total_performance).toLocaleString()}pp</td>
                 <td>${Math.round(country.stats.average_performance).toLocaleString()}pp</td>
             `;
 
