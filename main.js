@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.3
+// @version      1.7.4
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -41,12 +41,11 @@ let titleText;
 
     setWallpaper();
 
-    if (url.includes('/account/settings/')) setSettings();
+    if (url.includes('/account')) setSettings();
     const [
         checkboxClears,
         checkboxPPV1,
         checkboxPercent,
-        checkboxLeftPanel,
         checkboxHitsPerPlay,
         checkboxScorePerPlay,
         checkboxRanksPercent,
@@ -55,7 +54,6 @@ let titleText;
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
         GM.getValue('checkboxPercent', true),
-        GM.getValue('checkboxLeftPanel', true),
         GM.getValue('checkboxHitsPerPlay', true),
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true),
@@ -72,7 +70,6 @@ let titleText;
         if (checkboxHitsPerPlay) setHitsPerPlayData();
         if (checkboxScorePerPlay) setScorePerPlayData();
         if (checkboxRanksPercent) setRanksPercentData();
-        if (checkboxLeftPanel) setPlaystyleContainer();
         setLevelBar();
     }
 })();
@@ -94,10 +91,10 @@ function displayPopup() {
         <b>Version:</b> ${versionText}<br>
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
-        <ul style="margin-left: 12px;">
-            <li>- Added ranked score sorting on country rankings page</li>
-            <li>- Fixed percentage for clears ranking page not working for all modes</li>
-            <li>- Misc cleanup</li>
+        <ul style="margin-left: 12px; list-style: none;">
+            <li>- Remove altered left panel option</li>
+            <li>- Fixed settings page not showing</li>
+            <li>- Code cleanup</li>
         </ul>
     `;
 
@@ -331,38 +328,6 @@ function setclearsPercentData() {
     });
 }
 
-function setPlaystyleContainer() {
-    const target = document.querySelector('.profile-left');
-    const playstyle = document.querySelector('.playstyle-container')
-    if (!target || !playstyle) return;
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'profile-left-wrapper';
-    wrapper.style.position = 'sticky';
-    wrapper.style.float = 'left';
-    wrapper.style.top = 0;
-
-    const leftBottom = document.querySelector('.left-bottom')
-    leftBottom.style.margin = '0 10px 0 10px';
-
-    playstyle.style.display = 'flex';
-    playstyle.style.justifyContent = 'center';
-    playstyle.style.alignItems = 'center';
-    playstyle.style.background = '#dad7fb';
-    playstyle.style.padding = '5px';
-    playstyle.style.gap = '5px';
-    playstyle.style.margin = 0;
-    playstyle.style.marginTop = '10px';
-
-    const social = document.querySelector('.userpage-social');
-    if (social.innerHTML.trim() === '') social.style.paddingBottom = 0;
-
-    if (playstyle) target.style.float = 'none';
-
-    target.parentNode.insertBefore(wrapper, target);
-    wrapper.append(target, playstyle);
-}
-
 async function setLevelBar() {
     const target = document.querySelector('.level-bar');
     if (!target) return;
@@ -444,11 +409,17 @@ async function setSettings() {
         sidebar.classList.add('selected-sidebar');
 
         let target;
-        if (url.includes('https://osu.titanic.sh/account/settings/friends')) {
+        if (url.includes('https://osu.titanic.sh/account/friends')) {
             document.querySelector('.friends-heading').remove();
 
             target = document.querySelector('.friends');
             target.className = 'main-settings';
+            target.innerHTML = '';
+        }
+        else if (url.includes('https://osu.titanic.sh/account/chat')) {
+            document.querySelector('.heading').remove();
+
+            target = document.querySelector('.chat-container');
             target.innerHTML = '';
         }
         else {
@@ -587,7 +558,6 @@ async function setSettings() {
         otherBox.section.append (
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
-            await createCheckbox('checkboxLeftPanel', 'Use altered left panel on user profile'),
             await createLevelBar(),
             await createWallpapersection()
         );
