@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.5
+// @version      1.7.6
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -602,7 +602,7 @@ async function setSettings() {
         otherBox.section.append (
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
-            await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards'),
+            await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards (Removes Geki and Katu columns)'),
             await createLevelBar(),
             await createWallpapersection()
         );
