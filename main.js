@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.4
+// @version      1.7.5
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -49,7 +49,8 @@ let titleText;
         checkboxHitsPerPlay,
         checkboxScorePerPlay,
         checkboxRanksPercent,
-        checkboxLogoPulse
+        checkboxLogoPulse,
+        checkboxMapDetails
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -57,7 +58,8 @@ let titleText;
         GM.getValue('checkboxHitsPerPlay', true),
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true),
-        GM.getValue('checkboxLogoPulse', true)
+        GM.getValue('checkboxLogoPulse', true),
+        GM.getValue('checkboxMapDetails', false)
     ]);
     if (checkboxLogoPulse) logoPulse();
     if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
@@ -71,6 +73,9 @@ let titleText;
         if (checkboxScorePerPlay) setScorePerPlayData();
         if (checkboxRanksPercent) setRanksPercentData();
         setLevelBar();
+    }
+    if (url.includes('/b/')) {
+        if (checkboxMapDetails) await getMapLeaderboardData();;
     }
 })();
 
@@ -92,9 +97,7 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px; list-style: none;">
-            <li>- Remove altered left panel option</li>
-            <li>- Fixed settings page not showing</li>
-            <li>- Code cleanup</li>
+            <li>- Add Date and Client option for map leaderboards</li>
         </ul>
     `;
 
@@ -212,6 +215,47 @@ async function setCountryData() {
             target.appendChild(row);
         });
     }
+}
+
+async function getMapLeaderboardData() {
+    // TODO: Clean this function up at some point
+    const beatmapId = window.location.pathname.split('/')[2];
+    const response = await fetch(`https://api.titanic.sh/beatmaps/${beatmapId}/scores`);
+    const data = await response.json();
+
+    const headers = document.querySelectorAll("thead th");
+
+    for (let index = headers.length - 1; index >= 0; index--) {
+        if (["Geki", "Katu"].some(headerName => headers[index].textContent.includes(headerName))) {
+            headers[index].remove();
+
+            document.querySelectorAll(".scores tbody tr").forEach(row => {
+                if (row.children[index]) row.children[index].remove();
+            });
+        }
+    }
+
+    function createHeader(text) {
+        const header = document.querySelector('.scores-header tr');
+        const th = document.createElement('th');
+        th.innerHTML = `<b>${text}</b>`;
+        header.insertBefore(th, header.lastElementChild);
+    }
+
+    createHeader('Date');
+    createHeader('Client');
+
+    const rows = document.querySelectorAll('.scores tbody tr');
+
+    rows.forEach((row, index) => {
+        const date = document.createElement('td');
+        date.textContent = data.scores[index].submitted_at.split('T')[0];
+        row.insertBefore(date, row.lastElementChild);
+
+        const client = document.createElement('td');
+        client.textContent = `b${data.scores[index].client_version}`;
+        row.insertBefore(client, row.lastElementChild);
+    });
 }
 
 function setClearsData() {
@@ -558,6 +602,7 @@ async function setSettings() {
         otherBox.section.append (
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
+            await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards'),
             await createLevelBar(),
             await createWallpapersection()
         );
