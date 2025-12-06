@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.6
+// @version      1.7.7
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -97,7 +97,8 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px; list-style: none;">
-            <li>- Add Date and Client option for map leaderboards</li>
+            <li>- Use new client_string field in place of client_version</li>
+            <li>- Make client version a hover tooltip and remove client column (blame WWWWWWWWWWWWWWW and The Unforgiving)</li>
         </ul>
     `;
 
@@ -243,7 +244,6 @@ async function getMapLeaderboardData() {
     }
 
     createHeader('Date');
-    createHeader('Client');
 
     const rows = document.querySelectorAll('.scores tbody tr');
 
@@ -252,9 +252,7 @@ async function getMapLeaderboardData() {
         date.textContent = data.scores[index].submitted_at.split('T')[0];
         row.insertBefore(date, row.lastElementChild);
 
-        const client = document.createElement('td');
-        client.textContent = `b${data.scores[index].client_version}`;
-        row.insertBefore(client, row.lastElementChild);
+        row.title = `Client: ${data.scores[index].client_string}`;
     });
 }
 
