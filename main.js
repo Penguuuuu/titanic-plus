@@ -657,10 +657,11 @@ const peppyCss = `
     }
     #coolheader {
         position: absolute;
-        width: 255px;
+        width: 121px;
         height: 95px;
         top: 5px;
-        right: 600px;
+        left: 80vh;
+        background-position: 139px 0px;
     }
 
     .top_button {
@@ -674,7 +675,7 @@ const peppyCss = `
 
     #top_follow {
         background-position: -61px 0px;
-        right: 445px;
+        right: 42vh;
     }
     #top_follow:hover {
         background-position: -61px 62px;
@@ -682,7 +683,7 @@ const peppyCss = `
 
     #top_support {
         background-position: -122px 0px;
-        right: calc(445px - 60px);
+        right: calc(42vh - 60px);
     }
     #top_support:hover {
         background-position: -122px 62px;
@@ -695,8 +696,8 @@ const peppyCss = `
         background-repeat: no-repeat;
         width: 935px;
         height: 72.7px;
-        right: 181px;
-        top: 12px;
+        right: -202px;
+        top: -72.5px;
         background-size: 80%;
     }
 
@@ -724,10 +725,10 @@ function setPeppyStyle() {
     headerElement.style.backgroundImage = "url('//s.ppy.sh/images/right-pippi.jpg')";
     document.querySelector('body').insertBefore(headerElement, document.querySelector('body').firstChild);
 
-    // Add div with "rhythm is just a click away" below pippi element
+    // Add div with "rhythm is just a click away" next to bancho stats
     const statsHeader = document.createElement('div');
     statsHeader.id = 'stats-text-above';
-    document.querySelector('body').insertBefore(statsHeader, headerElement.nextSibling);
+    document.querySelector('.bancho-stats').appendChild(statsHeader);
 
     // Add twitter & support icons below header
     const twitterLink = document.createElement('a');
