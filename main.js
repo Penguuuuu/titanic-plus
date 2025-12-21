@@ -660,7 +660,7 @@ const peppyCss = `
         width: 121px;
         height: 95px;
         top: 5px;
-        left: 80vh;
+        left: 82vh;
         background-position: 139px 0px;
     }
 
