@@ -742,7 +742,17 @@ function setPeppyStyle() {
     supportLink.href = 'https://ko-fi.com/lekuru';
     document.querySelector('body').insertBefore(supportLink, twitterLink);
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setPeppyPageChanges);
+        return;
+    }
+
+    setPeppyPageChanges();
+}
+
+function setPeppyPageChanges() {
     const currentPath = window.location.pathname;
+
     // Home page customizations
     if (currentPath === '/') {
         const aboutHeader = document.getElementById('about-header');
