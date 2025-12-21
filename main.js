@@ -700,13 +700,13 @@ const peppyCss = `
         background-size: 80%;
     }
 
-    img[alt="Download"] {
+    .right-side img[alt="Download"] {
         content: url(https://osu.titanic.sh/images/buttons/osu-download.png);
     }
-    img[alt="Contribute"] {
+    .right-side img[alt="Contribute"] {
         content: url(https://osu.titanic.sh/images/buttons/osu-goodies.png);
     }
-    img[alt="Support"] {
+    .right-side img[alt="Support"] {
         content: url(https://osu.titanic.sh/images/buttons/osu-support.png);
     }
 `;
