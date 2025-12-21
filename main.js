@@ -636,7 +636,7 @@ async function setSettings() {
     });
 }
 
-peppyCss = `
+const peppyCss = `
     .main {
         font-size: 96%;
     }
