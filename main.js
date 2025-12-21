@@ -38,8 +38,8 @@ async function preload() {
 
     if (checkboxPeppyStyle)
         setPeppyStyle();
-
-    await setWallpaper();
+    
+    setWallpaper();
 }
 
 // Called after DOM is loaded
@@ -62,6 +62,9 @@ async function ready() {
         displayPopup();
         await GM.setValue('oldVersion', currentVersion);
     }
+
+    // If wallpaper wasn't already applied in preload, apply it now
+    setWallpaper();
 
     const [
         checkboxClears,
@@ -716,6 +719,15 @@ function setPeppyStyle() {
     style.textContent = peppyCss;
     document.head.appendChild(style);
 
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setPeppyPageChanges);
+        return;
+    }
+
+    setPeppyPageChanges();
+}
+
+function setPeppyPageChanges() {
     // Add pippi header
     const headerElement = document.createElement('div');
     headerElement.id = 'coolheader';
@@ -740,15 +752,6 @@ function setPeppyStyle() {
     supportLink.href = 'https://ko-fi.com/lekuru';
     document.querySelector('body').insertBefore(supportLink, twitterLink);
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setPeppyPageChanges);
-        return;
-    }
-
-    setPeppyPageChanges();
-}
-
-function setPeppyPageChanges() {
     const currentPath = window.location.pathname;
 
     // Home page customizations
