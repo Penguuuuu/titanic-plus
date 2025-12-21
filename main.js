@@ -666,7 +666,7 @@ const peppyCss = `
     .top_button {
         position: absolute;
         background: url('https://s.ppy.sh/images/social.png');
-        top: 6px;
+        top: -95px;
         width: 61px;
         height: 62px;
         background-position: 0px 0px;
@@ -674,7 +674,7 @@ const peppyCss = `
 
     #top_follow {
         background-position: -61px 0px;
-        left: 105vh;
+        right: 80px;
     }
     #top_follow:hover {
         background-position: -61px 62px;
@@ -682,7 +682,7 @@ const peppyCss = `
 
     #top_support {
         background-position: -122px 0px;
-        left: calc(105vh + 60px);
+        right: calc(80px - 60px);
     }
     #top_support:hover {
         background-position: -122px 62px;
@@ -743,13 +743,13 @@ function setPeppyPageChanges() {
     twitterLink.id = 'top_follow';
     twitterLink.className = 'top_button';
     twitterLink.href = 'https://twitter.com/osutitanic';
-    document.querySelector('body').insertBefore(twitterLink, headerElement);
+    document.querySelector('.main').insertBefore(twitterLink, headerElement);
 
     const supportLink = document.createElement('a');
     supportLink.id = 'top_support';
     supportLink.className = 'top_button';
     supportLink.href = 'https://ko-fi.com/lekuru';
-    document.querySelector('body').insertBefore(supportLink, twitterLink);
+    document.querySelector('.main').insertBefore(supportLink, twitterLink);
 
     const currentPath = window.location.pathname;
 
