@@ -675,7 +675,7 @@ const peppyCss = `
 
     #top_follow {
         background-position: -61px 0px;
-        right: 42vh;
+        left: 105vh;
     }
     #top_follow:hover {
         background-position: -61px 62px;
@@ -683,7 +683,7 @@ const peppyCss = `
 
     #top_support {
         background-position: -122px 0px;
-        right: calc(42vh - 60px);
+        left: calc(105vh + 60px);
     }
     #top_support:hover {
         background-position: -122px 62px;
