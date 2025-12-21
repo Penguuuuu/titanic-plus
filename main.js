@@ -34,16 +34,10 @@ let titleText;
 
 // Called before DOM is loaded
 async function preload() {
-    const [
-        checkboxLogoPulse,
-        checkboxPeppyStyle
-    ] = await Promise.all([
-        GM.getValue('checkboxLogoPulse', true),
-        GM.getValue('checkboxPeppyStyle', false)
-    ]);
+    const checkboxPeppyStyle = await GM.getValue('checkboxPeppyStyle', false);
 
-    if (checkboxPeppyStyle) setPeppyStyle();
-    if (checkboxLogoPulse) logoPulse();
+    if (checkboxPeppyStyle)
+        setPeppyStyle();
 
     await setWallpaper();
 }
@@ -76,7 +70,8 @@ async function ready() {
         checkboxHitsPerPlay,
         checkboxScorePerPlay,
         checkboxRanksPercent,
-        checkboxMapDetails
+        checkboxMapDetails,
+        checkboxLogoPulse
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -84,9 +79,11 @@ async function ready() {
         GM.getValue('checkboxHitsPerPlay', true),
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true),
-        GM.getValue('checkboxMapDetails', false)
+        GM.getValue('checkboxMapDetails', false),
+        GM.getValue('checkboxLogoPulse', true)
     ]);
 
+    if (checkboxLogoPulse) logoPulse();
     if (url.includes('/account')) setSettings();
     if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
     if (url.includes('/country')) setCountryData();
