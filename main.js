@@ -701,13 +701,13 @@ const peppyCss = `
     }
 
     img[alt="Download"] {
-        content: url(https://s.ppy.sh/images/osu-download.png);
+        content: url(https://osu.titanic.sh/images/buttons/osu-download.png);
     }
     img[alt="Contribute"] {
-        content: url(https://pmk335.neocities.org/osu-goodies.png);
+        content: url(https://osu.titanic.sh/images/buttons/osu-goodies.png);
     }
     img[alt="Support"] {
-        content: url(https://pmk335.neocities.org/osu-support.png);
+        content: url(https://osu.titanic.sh/images/buttons/osu-support.png);
     }
 `;
 
