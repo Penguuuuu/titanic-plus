@@ -657,11 +657,10 @@ const peppyCss = `
     }
     #coolheader {
         position: absolute;
-        width: 121px;
-        height: 95px;
-        top: 5px;
-        left: 82vh;
-        background-position: 139px 0px;
+        height: 150px;
+        top: -115px;
+        z-index: -1;
+        right: 219px;
     }
 
     .top_button {
@@ -729,10 +728,10 @@ function setPeppyStyle() {
 
 function setPeppyPageChanges() {
     // Add pippi header
-    const headerElement = document.createElement('div');
+    const headerElement = document.createElement('img');
     headerElement.id = 'coolheader';
-    headerElement.style.backgroundImage = "url('//s.ppy.sh/images/right-pippi.jpg')";
-    document.querySelector('body').insertBefore(headerElement, document.querySelector('body').firstChild);
+    headerElement.src = "/images/art/pippi_header.png";
+    document.querySelector('.main').insertBefore(headerElement, document.querySelector('.main').firstChild);
 
     // Add div with "rhythm is just a click away" next to bancho stats
     const statsHeader = document.createElement('div');
