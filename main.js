@@ -627,7 +627,7 @@ async function setSettings() {
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards (Removes Geki and Katu columns)'),
-            await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (requires page reload)'),
+            await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (Requires page reload)'),
             await createLevelBar(),
             await createWallpapersection()
         );
