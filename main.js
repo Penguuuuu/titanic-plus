@@ -637,16 +637,6 @@ async function setSettings() {
 }
 
 const peppyCss = `
-    .main {
-        font-size: 96%;
-    }
-    .blurb-header {
-        font-size: 90%;
-    }
-    .blurb-text {
-        font-size: 85%;
-    }
-
     .logo {
         top: -97px;
         left: -110px;
