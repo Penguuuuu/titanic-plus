@@ -6,6 +6,7 @@
 // @grant        GM_xmlhttpRequest
 // @grant        GM.setValue
 // @grant        GM.getValue
+// @run-at       document-start
 // @updateURL    https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js
 // ==/UserScript==
@@ -20,6 +21,29 @@ let versionText;
 let titleText;
 
 (async () => {
+    await preload();
+
+    if (document.readyState === 'loading') {
+        // DOM is not ready yet, add an event listener that calls ready() when it is
+        document.addEventListener('DOMContentLoaded', ready);
+        return;
+    }
+
+    await ready();
+})();
+
+// Called before DOM is loaded
+async function preload() {
+    const checkboxPeppyStyle = await GM.getValue('checkboxPeppyStyle', false);
+
+    if (checkboxPeppyStyle)
+        setPeppyStyle();
+    
+    setWallpaper();
+}
+
+// Called after DOM is loaded
+async function ready() {
     const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', 0);
     const popupClosed = await GM.getValue('popupClosed', true);
@@ -39,9 +63,9 @@ let titleText;
         await GM.setValue('oldVersion', currentVersion);
     }
 
+    // If wallpaper wasn't already applied in preload, apply it now
     setWallpaper();
 
-    if (url.includes('/account')) setSettings();
     const [
         checkboxClears,
         checkboxPPV1,
@@ -49,8 +73,8 @@ let titleText;
         checkboxHitsPerPlay,
         checkboxScorePerPlay,
         checkboxRanksPercent,
-        checkboxLogoPulse,
-        checkboxMapDetails
+        checkboxMapDetails,
+        checkboxLogoPulse
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -58,10 +82,12 @@ let titleText;
         GM.getValue('checkboxHitsPerPlay', true),
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true),
-        GM.getValue('checkboxLogoPulse', true),
-        GM.getValue('checkboxMapDetails', false)
+        GM.getValue('checkboxMapDetails', false),
+        GM.getValue('checkboxLogoPulse', true)
     ]);
+
     if (checkboxLogoPulse) logoPulse();
+    if (url.includes('/account')) setSettings();
     if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
     if (url.includes('/country')) setCountryData();
     if (url.includes('/u/')) {
@@ -77,7 +103,7 @@ let titleText;
     if (url.includes('/b/')) {
         if (checkboxMapDetails) await getMapLeaderboardData();;
     }
-})();
+}
 
 function displayPopup() {
     const popup = document.createElement('div');
@@ -601,12 +627,134 @@ async function setSettings() {
             await createCheckbox('checkboxLogoPulse', `Pulsing Titanic logo`),
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards (Removes Geki and Katu columns)'),
+            await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (Requires page reload)'),
             await createLevelBar(),
             await createWallpapersection()
         );
 
         target.append(profileBox.box, otherBox.box);
     });
+}
+
+const peppyCss = `
+    .logo {
+        top: -97px;
+        left: -110px;
+        width: 175px;
+        height: 175px;
+        transform: rotate(0deg);
+        content: url(https://s.ppy.sh/images/head-logo.png);
+    }
+    #coolheader {
+        position: absolute;
+        height: 150px;
+        top: -115px;
+        z-index: -1;
+        right: 219px;
+    }
+
+    .top_button {
+        position: absolute;
+        background: url('https://s.ppy.sh/images/social.png');
+        top: -95px;
+        width: 61px;
+        height: 62px;
+        z-index: 10;
+        background-position: 0px 0px;
+    }
+
+    #top_follow {
+        background-position: -61px 0px;
+        right: 80px;
+    }
+    #top_follow:hover {
+        background-position: -61px 62px;
+    }
+
+    #top_support {
+        background-position: -122px 0px;
+        right: calc(80px - 60px);
+    }
+    #top_support:hover {
+        background-position: -122px 62px;
+    }
+
+    #stats-text-above {
+        position: absolute;
+        background: url('https://s.ppy.sh/images/head-left-new.png');
+        background-position: 0px 0px;
+        background-repeat: no-repeat;
+        width: 935px;
+        height: 72.7px;
+        right: -202px;
+        top: -72.5px;
+        background-size: 80%;
+    }
+
+    .right-side img[alt="Download"] {
+        content: url(https://osu.titanic.sh/images/buttons/osu-download.png);
+    }
+    .right-side img[alt="Contribute"] {
+        content: url(https://osu.titanic.sh/images/buttons/osu-goodies.png);
+    }
+    .right-side img[alt="Support"] {
+        content: url(https://osu.titanic.sh/images/buttons/osu-support.png);
+    }
+`;
+
+function setPeppyStyle() {
+    // Add css styles
+    const style = document.createElement('style');
+    style.id = 'ppy-style';
+    style.textContent = peppyCss;
+    document.head.appendChild(style);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setPeppyPageChanges);
+        return;
+    }
+
+    setPeppyPageChanges();
+}
+
+function setPeppyPageChanges() {
+    // Add pippi header
+    const headerElement = document.createElement('img');
+    headerElement.id = 'coolheader';
+    headerElement.src = "/images/art/pippi_header.png";
+    document.querySelector('.main').insertBefore(headerElement, document.querySelector('.main').firstChild);
+
+    // Add div with "rhythm is just a click away" next to bancho stats
+    const statsHeader = document.createElement('div');
+    statsHeader.id = 'stats-text-above';
+    document.querySelector('.bancho-stats').appendChild(statsHeader);
+
+    // Add twitter & support icons below header
+    const twitterLink = document.createElement('a');
+    twitterLink.id = 'top_follow';
+    twitterLink.className = 'top_button';
+    twitterLink.href = 'https://twitter.com/osutitanic';
+    document.querySelector('.main').insertBefore(twitterLink, headerElement);
+
+    const supportLink = document.createElement('a');
+    supportLink.id = 'top_support';
+    supportLink.className = 'top_button';
+    supportLink.href = 'https://ko-fi.com/lekuru';
+    document.querySelector('.main').insertBefore(supportLink, twitterLink);
+
+    const currentPath = window.location.pathname;
+
+    // Home page customizations
+    if (currentPath === '/') {
+        const aboutHeader = document.getElementById('about-header');
+        if (aboutHeader) {
+            aboutHeader.innerHTML = "<b>osu!</b> is a <b>free-to-win</b> online rhythm game";
+        }
+        const blurbText = document.querySelector('.about-wrapper div.blurb-box div.blurb-text');
+        if (blurbText) {
+            blurbText.textContent = "osu! gameplay is based on a variety of popular commercial rhythm games. While keeping some authentic elements, osu! adds huge customisation via skins/beatmaps/storyboarding, online rankings, multiplayer and boasts a community with over 500,000 active users! Play the way you want to play, with your own music, and share your creations with others.";
+        }
+    }
 }
 
 async function createCheckbox(gmId, text, defaultValue = true) {
@@ -673,4 +821,3 @@ async function createDropdown({ text, options, gmId, defaultValue }) {
     container.append(label, select);
     return container;
 }
-
