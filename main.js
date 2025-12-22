@@ -659,6 +659,7 @@ const peppyCss = `
         top: -95px;
         width: 61px;
         height: 62px;
+        z-index: 10;
         background-position: 0px 0px;
     }
 
