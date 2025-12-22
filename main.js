@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.7
+// @version      1.7.8
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -24,7 +24,6 @@ let titleText;
     await preload();
 
     if (document.readyState === 'loading') {
-        // DOM is not ready yet, add an event listener that calls ready() when it is
         document.addEventListener('DOMContentLoaded', ready);
         return;
     }
@@ -32,17 +31,15 @@ let titleText;
     await ready();
 })();
 
-// Called before DOM is loaded
 async function preload() {
     const checkboxPeppyStyle = await GM.getValue('checkboxPeppyStyle', false);
 
     if (checkboxPeppyStyle)
         setPeppyStyle();
-    
+
     setWallpaper();
 }
 
-// Called after DOM is loaded
 async function ready() {
     const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', 0);
@@ -63,7 +60,6 @@ async function ready() {
         await GM.setValue('oldVersion', currentVersion);
     }
 
-    // If wallpaper wasn't already applied in preload, apply it now
     setWallpaper();
 
     const [
@@ -74,7 +70,8 @@ async function ready() {
         checkboxScorePerPlay,
         checkboxRanksPercent,
         checkboxMapDetails,
-        checkboxLogoPulse
+        checkboxLogoPulse,
+        checkboxCustomCursor
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -83,10 +80,12 @@ async function ready() {
         GM.getValue('checkboxScorePerPlay', true),
         GM.getValue('checkboxRanksPercent', true),
         GM.getValue('checkboxMapDetails', false),
-        GM.getValue('checkboxLogoPulse', true)
+        GM.getValue('checkboxLogoPulse', true),
+        GM.getValue('checkboxCustomCursor', false)
     ]);
 
     if (checkboxLogoPulse) logoPulse();
+    if (checkboxCustomCursor) setCustomCursor();
     if (url.includes('/account')) setSettings();
     if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
     if (url.includes('/country')) setCountryData();
@@ -101,7 +100,7 @@ async function ready() {
         setLevelBar();
     }
     if (url.includes('/b/')) {
-        if (checkboxMapDetails) await getMapLeaderboardData();;
+        if (checkboxMapDetails) await getMapLeaderboardData();
     }
 }
 
@@ -123,8 +122,8 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px; list-style: none;">
-            <li>- Use new client_string field in place of client_version</li>
-            <li>- Make client version a hover tooltip and remove client column (blame WWWWWWWWWWWWWWW and The Unforgiving)</li>
+            <li>- Add option for Kamui cursor</li>
+            <li>- Add option for old.ppy.sh style (By Levi)</li>
         </ul>
     `;
 
@@ -156,6 +155,59 @@ function displayPopup() {
 
     popup.append(button, link);
     document.body.appendChild(popup);
+}
+
+function setCustomCursor() {
+    // Really need to clean this up at some point and do the trail better
+    // Will also add the ability for cutom cursors eventually
+    // Need to add the ability for live reload
+    const style = document.createElement('style');
+    style.textContent = `* { cursor: none !important; }`;
+    document.head.appendChild(style);
+
+    const cursor = document.createElement('div');
+    cursor.style.position = 'fixed';
+    cursor.style.width = '50px';
+    cursor.style.height = '50px';
+    cursor.style.background = `url('https://patchouli.s-ul.eu/9tGZvBtp') center/contain no-repeat`;
+    cursor.style.transform = 'translate(-50%, -50%)';
+    cursor.style.transition = 'transform 100ms ease-out';
+    cursor.style.pointerEvents = 'none';
+    cursor.style.zIndex = '100';
+    document.body.appendChild(cursor);
+
+    let lastTime = 0;
+
+    document.addEventListener('mousemove', e => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+
+        if (performance.now() - lastTime >= 20) {
+            lastTime = performance.now();
+
+            const trail = document.createElement('div');
+            trail.style.position = 'fixed';
+            trail.style.width = '40px';
+            trail.style.height = '40px';
+            trail.style.background = `url('https://patchouli.s-ul.eu/jretE5u2') center/contain no-repeat`;
+            trail.style.transform = 'translate(-50%, -50%)';
+            trail.style.left = `${e.clientX}px`;
+            trail.style.top = `${e.clientY}px`;
+            trail.style.transition = 'opacity 200ms linear';
+            trail.style.pointerEvents = 'none';
+            document.body.appendChild(trail);
+
+            requestAnimationFrame(() => trail.style.opacity = '0');
+            setTimeout(() => trail.remove(), 200);
+        }
+    });
+
+    document.addEventListener('mousedown', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(1.3)';
+    });
+    document.addEventListener('mouseup', () => {
+        cursor.style.transform = 'translate(-50%, -50%)';
+    });
 }
 
 async function getMapData() {
@@ -628,6 +680,7 @@ async function setSettings() {
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards (Removes Geki and Katu columns)'),
             await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (Requires page reload)'),
+            await createCheckbox('checkboxCustomCursor', 'Enable Kamui cursor (Requires page reload)'),
             await createLevelBar(),
             await createWallpapersection()
         );
@@ -703,7 +756,6 @@ const peppyCss = `
 `;
 
 function setPeppyStyle() {
-    // Add css styles
     const style = document.createElement('style');
     style.id = 'ppy-style';
     style.textContent = peppyCss;
@@ -718,18 +770,15 @@ function setPeppyStyle() {
 }
 
 function setPeppyPageChanges() {
-    // Add pippi header
     const headerElement = document.createElement('img');
     headerElement.id = 'coolheader';
     headerElement.src = "/images/art/pippi_header.png";
     document.querySelector('.main').insertBefore(headerElement, document.querySelector('.main').firstChild);
 
-    // Add div with "rhythm is just a click away" next to bancho stats
     const statsHeader = document.createElement('div');
     statsHeader.id = 'stats-text-above';
     document.querySelector('.bancho-stats').appendChild(statsHeader);
 
-    // Add twitter & support icons below header
     const twitterLink = document.createElement('a');
     twitterLink.id = 'top_follow';
     twitterLink.className = 'top_button';
@@ -744,7 +793,6 @@ function setPeppyPageChanges() {
 
     const currentPath = window.location.pathname;
 
-    // Home page customizations
     if (currentPath === '/') {
         const aboutHeader = document.getElementById('about-header');
         if (aboutHeader) {
