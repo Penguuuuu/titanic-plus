@@ -34,8 +34,7 @@ let titleText;
 async function preload() {
     const checkboxPeppyStyle = await GM.getValue('checkboxPeppyStyle', false);
 
-    if (checkboxPeppyStyle)
-        setPeppyStyle();
+    if (checkboxPeppyStyle) setPeppyStyle();
 
     setWallpaper();
 }
@@ -57,7 +56,6 @@ async function ready() {
         }
 
         displayPopup();
-        await GM.setValue('oldVersion', currentVersion);
     }
 
     setWallpaper();
@@ -105,17 +103,43 @@ async function ready() {
 }
 
 function displayPopup() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .popup-titanic-plus {
+            max-width: 400px;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #f0ecfa;
+            color: #000;
+            border: solid 2px #5c559c;
+            border-radius: 5px;
+            font-size: 13.7914px;
+        }
+        .button-popup-titanic-plus {
+            margin-top: 5px;
+            padding: 4px 8px;
+            color: #fff;
+            background-color: #5c559c;
+            border-radius: 5px;
+        }
+        .button-popup-titanic-plus:hover {
+            text-decoration: underline;
+        }
+        .link-popup-titanic-plus {
+            margin-top: 5px;
+            margin-left: 5px;
+            color: #3843a6;
+        }
+        .link-popup-titanic-plus:hover {
+            text-decoration: underline;
+        }
+    `;
+    document.head.appendChild(style);
+
     const popup = document.createElement('div');
-    popup.style.maxWidth = '400px';
-    popup.style.position = 'fixed';
-    popup.style.top = '20px';
-    popup.style.right = '20px';
-    popup.style.fontSize = '13.7914px';
-    popup.style.backgroundColor = '#f0ecfa';
-    popup.style.color = '#000000';
-    popup.style.padding = '10px 15px';
-    popup.style.borderRadius = '5px';
-    popup.style.border = 'solid 2px #5c559c';
+    popup.classList.add('popup-titanic-plus');
     popup.innerHTML = `
         <b>${titleText}</b><br>
         <b>Version:</b> ${versionText}<br>
@@ -128,53 +152,59 @@ function displayPopup() {
     `;
 
     const button = document.createElement('button');
+    button.classList.add('button-popup-titanic-plus');
     button.textContent = 'Close';
-    button.style.marginTop = '5px';
-    button.style.padding = '4px 8px';
-    button.style.color = 'white';
-    button.style.backgroundColor = '#5c559c';
-    button.style.borderRadius = '5px';
-    button.style.border = 'none';
-    button.style.cursor = 'pointer';
-    button.onmouseover = () => button.style.textDecoration = 'underline';
-    button.onmouseout = () => button.style.textDecoration = 'none';
     button.onclick = async () => {
         await GM.setValue('popupClosed', true);
+        await GM.setValue('oldVersion', GM_info.script.version);
         popup.remove();
     };
 
     const link = document.createElement('a');
+    link.classList.add('link-popup-titanic-plus');
     link.href = 'https://github.com/Penguuuuu/titanic-plus/commits/main';
     link.textContent = 'Source';
     link.target = '_blank';
-    link.style.marginTop = '5px';
-    link.style.marginLeft = '5px';
-    link.style.color = '#3843a6';
-    link.onmouseover = () => link.style.textDecoration = 'underline';
-    link.onmouseout = () => link.style.textDecoration = 'none';
 
     popup.append(button, link);
     document.body.appendChild(popup);
 }
 
 function setCustomCursor() {
-    // Really need to clean this up at some point and do the trail better
-    // Will also add the ability for cutom cursors eventually
-    // Need to add the ability for live reload
+    // Will add the option for custom cursors eventually
+    // Need to add live reload
     const style = document.createElement('style');
-    style.textContent = `* { cursor: none !important; }`;
+    style.textContent = `
+        * {
+            cursor: none !important;
+        }
+        .cursor-titanic-plus, .cursor-trail-titanic-plus {
+            position: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .cursor-titanic-plus {
+            width: 50px;
+            height: 50px;
+            background-image: url('https://patchouli.s-ul.eu/9tGZvBtp');
+            transition: transform 100ms ease-out;
+            z-index: 100;
+        }
+        .cursor-trail-titanic-plus {
+            width: 40px;
+            height: 40px;
+            background-image: url('https://patchouli.s-ul.eu/jretE5u2');
+            transition: opacity 200ms linear;
+        }
+    `;
     document.head.appendChild(style);
 
     const cursor = document.createElement('div');
-    cursor.style.position = 'fixed';
-    cursor.style.width = '50px';
-    cursor.style.height = '50px';
-    cursor.style.background = `url('https://patchouli.s-ul.eu/9tGZvBtp') center/contain no-repeat`;
-    cursor.style.transform = 'translate(-50%, -50%)';
-    cursor.style.transition = 'transform 100ms ease-out';
-    cursor.style.pointerEvents = 'none';
-    cursor.style.zIndex = '100';
-    document.body.appendChild(cursor);
+    cursor.classList.add('cursor-titanic-plus');
+    document.body.append(cursor);
 
     let lastTime = 0;
 
@@ -186,16 +216,10 @@ function setCustomCursor() {
             lastTime = performance.now();
 
             const trail = document.createElement('div');
-            trail.style.position = 'fixed';
-            trail.style.width = '40px';
-            trail.style.height = '40px';
-            trail.style.background = `url('https://patchouli.s-ul.eu/jretE5u2') center/contain no-repeat`;
-            trail.style.transform = 'translate(-50%, -50%)';
-            trail.style.left = `${e.clientX}px`;
-            trail.style.top = `${e.clientY}px`;
-            trail.style.transition = 'opacity 200ms linear';
-            trail.style.pointerEvents = 'none';
-            document.body.appendChild(trail);
+            trail.classList.add('cursor-trail-titanic-plus');
+            trail.style.left = e.clientX + 'px';
+            trail.style.top = e.clientY + 'px';
+            document.body.append(trail);
 
             requestAnimationFrame(() => trail.style.opacity = '0');
             setTimeout(() => trail.remove(), 200);
@@ -205,6 +229,7 @@ function setCustomCursor() {
     document.addEventListener('mousedown', () => {
         cursor.style.transform = 'translate(-50%, -50%) scale(1.3)';
     });
+
     document.addEventListener('mouseup', () => {
         cursor.style.transform = 'translate(-50%, -50%)';
     });
@@ -623,7 +648,7 @@ async function setSettings() {
             return container;
         }
 
-        async function createWallpapersection() {
+        async function createWallpaperSection() {
             const container = document.createElement('div');
             container.style.marginTop = '30px';
             container.style.display = 'flex';
@@ -682,9 +707,8 @@ async function setSettings() {
             await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (Requires page reload)'),
             await createCheckbox('checkboxCustomCursor', 'Enable Kamui cursor (Requires page reload)'),
             await createLevelBar(),
-            await createWallpapersection()
+            await createWallpaperSection()
         );
-
         target.append(profileBox.box, otherBox.box);
     });
 }
