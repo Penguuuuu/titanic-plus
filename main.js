@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.8
+// @version      1.7.9
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -11,9 +11,9 @@
 // @downloadURL  https://raw.githubusercontent.com/Penguuuuu/titanic-plus/main/main.js
 // ==/UserScript==
 
-const modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id.slice(3));
 const url = window.location.href;
-const general = document.getElementById('general');
+let general;
+let modeIndex;
 
 let cachedMapData;
 let cachedUserData;
@@ -40,6 +40,9 @@ async function preload() {
 }
 
 async function ready() {
+    general = document.getElementById('general');
+    modeIndex = Number(document.querySelector('.gamemode-button.active-mode')?.id.slice(3));
+
     const currentVersion = GM_info.script.version;
     const oldVersion = await GM.getValue('oldVersion', 0);
     const popupClosed = await GM.getValue('popupClosed', true);
@@ -69,7 +72,7 @@ async function ready() {
         checkboxRanksPercent,
         checkboxMapDetails,
         checkboxLogoPulse,
-        checkboxCustomCursor
+        // checkboxCustomCursor
     ] = await Promise.all([
         GM.getValue('checkboxClears', true),
         GM.getValue('checkboxPPV1', true),
@@ -79,11 +82,11 @@ async function ready() {
         GM.getValue('checkboxRanksPercent', true),
         GM.getValue('checkboxMapDetails', false),
         GM.getValue('checkboxLogoPulse', true),
-        GM.getValue('checkboxCustomCursor', false)
+        // GM.getValue('checkboxCustomCursor', false)
     ]);
 
     if (checkboxLogoPulse) logoPulse();
-    if (checkboxCustomCursor) setCustomCursor();
+    // if (checkboxCustomCursor) setCustomCursor();
     if (url.includes('/account')) setSettings();
     if (url.includes('/clears') && checkboxPercent) setclearsPercentData();
     if (url.includes('/country')) setCountryData();
@@ -146,8 +149,8 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px; list-style: none;">
-            <li>- Add option for Kamui cursor</li>
-            <li>- Add option for old.ppy.sh style (By Levi)</li>
+            <li>- Remove Kamui cursor (for now)</li>
+            <li>- Fix DOM issues</li>
         </ul>
     `;
 
@@ -170,70 +173,70 @@ function displayPopup() {
     document.body.appendChild(popup);
 }
 
-function setCustomCursor() {
-    // Will add the option for custom cursors eventually
-    // Need to add live reload
-    const style = document.createElement('style');
-    style.textContent = `
-        * {
-            cursor: none !important;
-        }
-        .cursor-titanic-plus, .cursor-trail-titanic-plus {
-            position: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: contain;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-        .cursor-titanic-plus {
-            width: 50px;
-            height: 50px;
-            background-image: url('https://patchouli.s-ul.eu/9tGZvBtp');
-            transition: transform 100ms ease-out;
-            z-index: 100;
-        }
-        .cursor-trail-titanic-plus {
-            width: 40px;
-            height: 40px;
-            background-image: url('https://patchouli.s-ul.eu/jretE5u2');
-            transition: opacity 200ms linear;
-        }
-    `;
-    document.head.appendChild(style);
+// function setCustomCursor() {
+//     // Will add the option for custom cursors eventually
+//     // Need to add live reload
+//     const style = document.createElement('style');
+//     style.textContent = `
+//         * {
+//             cursor: none !important;
+//         }
+//         .cursor-titanic-plus, .cursor-trail-titanic-plus {
+//             position: fixed;
+//             background-position: center;
+//             background-repeat: no-repeat;
+//             background-size: contain;
+//             transform: translate(-50%, -50%);
+//             pointer-events: none;
+//         }
+//         .cursor-titanic-plus {
+//             width: 50px;
+//             height: 50px;
+//             background-image: url('https://patchouli.s-ul.eu/9tGZvBtp');
+//             transition: transform 100ms ease-out;
+//             z-index: 100;
+//         }
+//         .cursor-trail-titanic-plus {
+//             width: 40px;
+//             height: 40px;
+//             background-image: url('https://patchouli.s-ul.eu/jretE5u2');
+//             transition: opacity 200ms linear;
+//         }
+//     `;
+//     document.head.appendChild(style);
 
-    const cursor = document.createElement('div');
-    cursor.classList.add('cursor-titanic-plus');
-    document.body.append(cursor);
+//     const cursor = document.createElement('div');
+//     cursor.classList.add('cursor-titanic-plus');
+//     document.body.append(cursor);
 
-    let lastTime = 0;
+//     let lastTime = 0;
 
-    document.addEventListener('mousemove', e => {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
+//     document.addEventListener('mousemove', e => {
+//         cursor.style.left = e.clientX + 'px';
+//         cursor.style.top = e.clientY + 'px';
 
-        if (performance.now() - lastTime >= 20) {
-            lastTime = performance.now();
+//         if (performance.now() - lastTime >= 20) {
+//             lastTime = performance.now();
 
-            const trail = document.createElement('div');
-            trail.classList.add('cursor-trail-titanic-plus');
-            trail.style.left = e.clientX + 'px';
-            trail.style.top = e.clientY + 'px';
-            document.body.append(trail);
+//             const trail = document.createElement('div');
+//             trail.classList.add('cursor-trail-titanic-plus');
+//             trail.style.left = e.clientX + 'px';
+//             trail.style.top = e.clientY + 'px';
+//             document.body.append(trail);
 
-            requestAnimationFrame(() => trail.style.opacity = '0');
-            setTimeout(() => trail.remove(), 200);
-        }
-    });
+//             requestAnimationFrame(() => trail.style.opacity = '0');
+//             setTimeout(() => trail.remove(), 200);
+//         }
+//     });
 
-    document.addEventListener('mousedown', () => {
-        cursor.style.transform = 'translate(-50%, -50%) scale(1.3)';
-    });
+//     document.addEventListener('mousedown', () => {
+//         cursor.style.transform = 'translate(-50%, -50%) scale(1.3)';
+//     });
 
-    document.addEventListener('mouseup', () => {
-        cursor.style.transform = 'translate(-50%, -50%)';
-    });
-}
+//     document.addEventListener('mouseup', () => {
+//         cursor.style.transform = 'translate(-50%, -50%)';
+//     });
+// }
 
 async function getMapData() {
     if (cachedMapData) return cachedMapData;
@@ -705,7 +708,7 @@ async function setSettings() {
             await createCheckbox('checkboxPercent', 'Show percent values for clears leaderboard'),
             await createCheckbox('checkboxMapDetails', 'Show Date and Client for map leaderboards (Removes Geki and Katu columns)'),
             await createCheckbox('checkboxPeppyStyle', 'Enable old.ppy.sh style (Requires page reload)'),
-            await createCheckbox('checkboxCustomCursor', 'Enable Kamui cursor (Requires page reload)'),
+            // await createCheckbox('checkboxCustomCursor', 'Enable Kamui cursor (Requires page reload)'),
             await createLevelBar(),
             await createWallpaperSection()
         );
