@@ -500,7 +500,7 @@ async function setLevelProgress() {
     const cumulativeScore = levelToScore(level);
     const cumulativeScoreNext = levelToScore(level + 1);
     const neededScore = Math.round(cumulativeScoreNext - cumulativeScore);
-    const currentScore = totalScore - Math.round(cumulativeScore);
+    const currentScore = Math.floor(totalScore - cumulativeScore);
 
     target.innerHTML += `(${formatScore(currentScore)} / ${formatScore(neededScore)})`;
 
@@ -521,7 +521,7 @@ async function setLevelProgress() {
         ];
         for (const [value, suffix] of suffixes) {
             if (exp >= value) {
-                return `${(Math.floor((exp / value) * 100) / 100).toFixed(2)}${suffix}`;
+                return `${(exp / value).toFixed(2)}${suffix}`;
             }
         }
     }
