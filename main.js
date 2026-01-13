@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Titanic+
-// @version      1.7.9
+// @version      1.8.0
 // @author       Patchouli
 // @match        https://osu.titanic.sh/*
 // @grant        GM_xmlhttpRequest
@@ -99,6 +99,7 @@ async function ready() {
         if (checkboxScorePerPlay) setScorePerPlayData();
         if (checkboxRanksPercent) setRanksPercentData();
         setLevelBar();
+        setLevelProgress();
     }
     if (url.includes('/b/')) {
         if (checkboxMapDetails) await getMapLeaderboardData();
@@ -149,8 +150,9 @@ function displayPopup() {
         <b>Updated:</b> ${new Date().toLocaleDateString()}<br>
         <b>Notes:</b><br>
         <ul style="margin-left: 12px; list-style: none;">
-            <li>- Remove Kamui cursor (for now)</li>
-            <li>- Fix DOM issues</li>
+            <li>- Added Score to Next Level</li>
+            <li>- Fix update version being incorrectly displayed on page reload</li>
+            <li>- Round clears percentages to 2 decimal places</li>
         </ul>
     `;
 
@@ -377,7 +379,7 @@ function setClearsData() {
 
     const clears = cachedUserData.rankings[modeIndex].clears;
     clears.value = Math.max(0, cachedUserData.rankings[modeIndex].clears.value);
-    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${cachedMapData.toLocaleString()} | ${(clears.value / cachedMapData * 100).toFixed(3)}% (#${clears.global})`;
+    header.innerHTML = `<b>Clears</b>: ${clears.value.toLocaleString()} / ${cachedMapData.toLocaleString()} | ${(clears.value / cachedMapData * 100).toFixed(2)}% (#${clears.global})`;
 
     if (clears.global <= 100) header.style.color = '#0e3062';
 }
@@ -471,7 +473,7 @@ function setclearsPercentData() {
         const count = Number(c.replace(/,/g, ''));
         const total = Number(t.replace(/,/g, ''));
 
-        const percent = ((count / total) * 100).toFixed(3);
+        const percent = ((count / total) * 100).toFixed(2);
         cell.innerHTML = `<b>${text} (${percent}%)</b>`;
     });
 }
@@ -482,6 +484,47 @@ async function setLevelBar() {
 
     const hue = await GM.getValue('levelBarHue', 0);
     target.style.filter = `hue-rotate(${hue}deg)`;
+}
+
+async function setLevelProgress() {
+    // Clean this up at some point you lazy piece of nothing
+    const target = document.querySelector('h4.profile-stats-element[title^="Your level"]')
+    if (!target) return;
+    if (!cachedUserData) {
+        target.innerHTML += '(Failed to fetch)';
+        return;
+    }
+
+    const level = Number(target.textContent.split(':')[1].trim());
+    const totalScore = cachedUserData.stats[modeIndex].tscore
+    const cumulativeScore = levelToScore(level);
+    const cumulativeScoreNext = levelToScore(level + 1);
+    const neededScore = Math.round(cumulativeScoreNext - cumulativeScore);
+    const currentScore = totalScore - Math.round(cumulativeScore);
+
+    target.innerHTML += `(${formatScore(currentScore)} / ${formatScore(neededScore)})`;
+
+    function levelToScore(level) {
+    if (level <= 100) {
+        return (5000 / 3) * level * (4 * level * level - 3 * level - 1) + (5 / 4) * 1.8 ** (level - 60);
+    }
+    return 26_931_190_827 + 99_999_999_999 * (level - 100);
+    }
+
+    function formatScore(exp) {
+        if (exp < 1000) return `${exp}`;
+        const suffixes = [
+            [1e12, 'T'],
+            [1e9, 'B'],
+            [1e6, 'M'],
+            [1e3, 'K']
+        ];
+        for (const [value, suffix] of suffixes) {
+            if (exp >= value) {
+                return `${(Math.floor((exp / value) * 100) / 100).toFixed(2)}${suffix}`;
+            }
+        }
+    }
 }
 
 function logoPulse() {
